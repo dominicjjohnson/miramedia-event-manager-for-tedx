@@ -20,25 +20,29 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'cpt.php';
 require_once plugin_dir_path(__FILE__) . 'api.php';
 require_once plugin_dir_path(__FILE__) . 'blocks.php';
+require_once plugin_dir_path(__FILE__) . 'shortcodes.php';
 
 // Define a constant for development mode.
 if (!defined('DEV_MODE')) {
     define('DEV_MODE', true); // Set to false in production.
 }
 
+
 function TEDx_enqueue_styles() {
-    // Determine the version for cache-busting.
-    $version = DEV_MODE ? time() : filemtime(plugin_dir_path(__FILE__) . '/assets/style.css');
+    // Use time() to ensure cache busting on every page load.
+    $version = time();
 
     // Enqueue the single CSS file.
     wp_enqueue_style(
         'TEDx-plugin-style',
         plugins_url('/assets/style.css', __FILE__), // Path to your style.css file.
         array(), // Dependencies (none in this case).
-        $version // Version for cache-busting.
+        $version // Forces browser to re-fetch the latest file.
     );
 }
 add_action('wp_enqueue_scripts', 'TEDx_enqueue_styles');
+
+
 
 // Disable comments and trackbacks - need to put this into an option Y/N
 function TEDx_disable_comments() {

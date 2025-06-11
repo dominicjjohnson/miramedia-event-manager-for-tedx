@@ -280,15 +280,7 @@
     font-size: 42px;
     font-weight: 400;
     line-height: 50px;
-    color: #1F1F1F !important;
-    margin: 20px 0;
-}
-
-.single-talk h1 {
-    font-size: 32px;
-    font-weight: 400;
-    line-height: 50px;
-    color: #1F1F1F !important;
+    color: #ffffff !important;
     margin: 20px 0;
 }
 
@@ -302,5 +294,16 @@
 .black-background {
     background-color: #000 !important;
 }
+.hero-image {
+    top: -117px;
+    z-index: -1;
+    height: 575px;
+}
 
+.wp-site-blocks {
+    padding-top: 0px;
+}
 
+.wp-block-uagb-container.uagb-block-8h2fczau {
+    padding-top: 32px !important;
+}
