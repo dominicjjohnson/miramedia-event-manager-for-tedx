@@ -153,6 +153,9 @@ function tedx_render_people_showcase_block($attributes) {
 
 function tedx_render_talks_showcase_block($attributes) {
 
+    // Set a flag for now to switch between linking to YouTube or the talk post
+    $link_to_youtube = isset($attributes['linkToYoutube']) ? (bool) $attributes['linkToYoutube'] : false;
+
     // Get the selected year from the block attributes
     $talk_year = isset($attributes['year']) ? esc_html($attributes['year']) : 'Not selected';
 
@@ -174,9 +177,6 @@ function tedx_render_talks_showcase_block($attributes) {
             ),
         ),
     ]);
-
-
-
     
     if (!$query->have_posts()) {
         return '<p>No talk found for YEAR: ' . $talk_year . '</p>';
@@ -190,7 +190,7 @@ function tedx_render_talks_showcase_block($attributes) {
         // Loop through each talk (example single talk structure)
         $output .= '<div class="talk-card">';
 
-        if ($youtube_video_link) {
+        if ($youtube_video_link && $link_to_youtube) {
             $output .= '<a href="' . esc_url($youtube_video_link) . '" target="_blank" rel="noopener noreferrer">';
         }
         else   {
@@ -208,8 +208,6 @@ function tedx_render_talks_showcase_block($attributes) {
         $output .= '<p class="talk-date">' . esc_html(get_the_date()) . '</p>';
         // Get linked people (assuming a relationship field 'linked_people' storing person post IDs)
         $linked_people = get_post_meta(get_the_ID(), 'person_link', true);
-
-
 
         if (!empty($linked_people)) {
             if (!is_array($linked_people)) {
