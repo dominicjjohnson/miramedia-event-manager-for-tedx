@@ -237,6 +237,7 @@
 
 /* Talk description styles */
 .talk-description {
+    display: none; /* Hide description by default */;
     font-size: 1em;
     color: #555555;
     margin-bottom: 10px;

@@ -44,7 +44,8 @@ function tedx_speaker_shortcode($atts) {
         $speaker_image_id = get_post_thumbnail_id($person_link);
         $speaker_image = $speaker_image_id ? wp_get_attachment_url($speaker_image_id) : '';
     } else {
-        return 'No speaker information found.';
+       //return 'No speaker information found.';
+        return "";
     }
 
     // Prevent wpautop from adding <p> tags
