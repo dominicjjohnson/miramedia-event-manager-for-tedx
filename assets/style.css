@@ -112,7 +112,12 @@
     align-items: center; /* Align logos in the middle vertically */
 }
 
-
+/* 1 logo wide on mobile */
+@media (max-width: 480px) {
+    .company-showcase {
+        grid-template-columns: 1fr; /* Single column on small screens */
+    }
+}
 
 
 
@@ -203,6 +208,13 @@
     text-align: center; /* Center the content in the grid */
 }
 
+/* show only 2 talks on mobile */
+@media (max-width: 768px) {
+  .talks-showcase {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* Individual talk card styles */
 .talk-card {
     text-align: center;
@@ -229,11 +241,17 @@
 
 /* Talk title styles */
 .talk-title {
-    font-size: 1.3em;
     font-weight: bold;
     color: #333333;
     margin: 10px 0;
 }
+
+.talk-title a {
+    font-weight: bold;
+    color: #333333;
+    margin: 10px 0;
+}
+
 
 /* Talk description styles */
 .talk-description {
@@ -308,3 +326,12 @@
 .wp-block-uagb-container.uagb-block-8h2fczau {
     padding-top: 32px !important;
 }
+
+/* Add some padding to the mobile view */
+@media (max-width: 768px) {
+  .wp-block-post-content {
+    padding: 2rem 1rem !important; 
+  }
+}
+
+

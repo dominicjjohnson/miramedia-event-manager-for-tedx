@@ -93,7 +93,7 @@ function tedx_render_people_showcase_block($attributes) {
     $query = new WP_Query([
         'post_type' => 'person',
         'posts_per_page' => -1,
-        'orderby' => 'rand',
+        'orderby' => 'title',
         'tax_query' => array(
             array(
                 'taxonomy' => 'person_type',
@@ -203,9 +203,12 @@ function tedx_render_talks_showcase_block($attributes) {
         if ($youtube_video_link) {
             $output .= '</a>';
         }
-        $output .= '<h3 class="talk-title">' . esc_html(get_the_title()) . '</h3>';
-        $output .= '<p class="talk-description">' . esc_html(get_the_excerpt()) . '</p>';   
-        $output .= '<p class="talk-date">' . esc_html(get_the_date()) . '</p>';
+        $output .= '<h3 class="talk-title"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h3>';
+
+        $output .= '<p class="talk-description">' . esc_html(get_the_excerpt()) . '</p>';  
+        
+        // remove date for now as it is using published date which is nonsense 
+        //$output .= '<p class="talk-date">' . esc_html(get_the_date()) . '</p>';
         // Get linked people (assuming a relationship field 'linked_people' storing person post IDs)
         $linked_people = get_post_meta(get_the_ID(), 'person_link', true);
 
