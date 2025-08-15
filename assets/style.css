@@ -1,3 +1,23 @@
+/* Center and scale logo when only one company is shown */
+.company-showcase-one-company {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px; /* adjust as needed */
+}
+
+.company-showcase-one-company .company-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.company-showcase-one-company .company-logo {
+    transform: scale(1.25);
+    margin: 0 auto;
+    display: block;
+}
 /* Grid container styles */
 
 /* General container styles (People and Talks) */

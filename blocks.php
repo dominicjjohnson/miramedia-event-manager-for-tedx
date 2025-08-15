@@ -261,7 +261,27 @@ function tedx_render_companies_showcase_block($attributes) {
         return '<p>No companies found for type '.$company_type.'.</p>';
     }
 
+<<<<<<< HEAD
     $output = '<div class="company-showcase">'; // Grid container starts
+=======
+    // Prepare to count companies
+    $company_type = isset($attributes['company_type']) ? esc_html($attributes['company_type']) : 'Not selected';
+    $query = new WP_Query([
+        'post_type' => 'company',
+        'posts_per_page' => 3,
+        'tax_query' => array(
+            array(
+                'taxonomy' => 'company_type',
+                'field'    => 'slug',
+                'terms'    => $company_type,
+            ),
+        ),
+    ]);
+
+    $company_count = $query->post_count;
+    $showcase_class = ($company_count === 1) ? 'company-showcase-one-company' : 'company-showcase';
+    $output = '<div class="' . $showcase_class . '">'; // Grid container starts
+>>>>>>> 1441677 (Add company-showcase-one-company class and CSS for single company logo centering and scaling)
     while ($query->have_posts()) {
         $query->the_post();
         $logo = get_the_post_thumbnail_url(get_the_ID(), 'medium');
