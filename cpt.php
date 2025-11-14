@@ -34,7 +34,11 @@ register_taxonomy('company_type', 'company', array(
         'singular_name' => 'Company Type'
     ),
     'hierarchical' => true,
-    'show_in_rest' => true
+    'public' => true,
+    'show_ui' => true,
+    'show_in_rest' => true,
+    'rest_base' => 'company_type',
+    'rest_controller_class' => 'WP_REST_Terms_Controller'
 ));
 
 

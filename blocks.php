@@ -88,20 +88,26 @@ add_action('init', 'register_custom_blocks');
 function tedx_render_people_showcase_block($attributes) {
 
     //$person_type = is_front_page() ? 'team' : 'team';
-    $person_type = isset($attributes['person_type']) ? esc_html($attributes['person_type']) : 'Not selected';
+    $person_type = isset($attributes['person_type']) ? esc_html($attributes['person_type']) : '';
 
-    $query = new WP_Query([
+    $query_args = [
         'post_type' => 'person',
         'posts_per_page' => -1,
         'orderby' => 'title',
-        'tax_query' => array(
+    ];
+
+    // Only add tax_query if a specific person type is selected
+    if (!empty($person_type)) {
+        $query_args['tax_query'] = array(
             array(
                 'taxonomy' => 'person_type',
                 'field'    => 'slug',
                 'terms'    => $person_type,
             ),
-        ),
-    ]);
+        );
+    }
+
+    $query = new WP_Query($query_args);
 
     if (!$query->have_posts()) {
         return '<p>No People found.</p>';
@@ -157,29 +163,36 @@ function tedx_render_talks_showcase_block($attributes) {
     $link_to_youtube = isset($attributes['linkToYoutube']) ? (bool) $attributes['linkToYoutube'] : false;
 
     // Get the selected year from the block attributes
-    $talk_year = isset($attributes['year']) ? esc_html($attributes['year']) : 'Not selected';
+    $talk_year = isset($attributes['year']) ? esc_html($attributes['year']) : '';
 
-    $query = new WP_Query([
+    $query_args = [
         'post_type' => 'talk',
         'posts_per_page' => -1,
         'orderby' => 'rand',
-        'tax_query' => array(
-            array(
-                'taxonomy' => 'talk_year',
-                'field'    => 'slug',
-                'terms'    => $talk_year,
-            ),
-        ),
         'meta_query' => array(
             array(
                 'key'     => '_thumbnail_id',
                 'compare' => 'EXISTS',
             ),
         ),
-    ]);
-    
+    ];
+
+    // Only add tax_query if a specific year is selected
+    if (!empty($talk_year)) {
+        $query_args['tax_query'] = array(
+            array(
+                'taxonomy' => 'talk_year',
+                'field'    => 'slug',
+                'terms'    => $talk_year,
+            ),
+        );
+    }
+
+    $query = new WP_Query($query_args);
+
     if (!$query->have_posts()) {
-        return '<p>No talk found for YEAR: ' . $talk_year . '</p>';
+        $message = empty($talk_year) ? 'No talks found.' : 'No talks found for year: ' . $talk_year . '.';
+        return '<p>' . $message . '</p>';
     }
 
     $output = '<div class="talks-showcase">'; // Grid container starts
@@ -241,24 +254,31 @@ function tedx_render_talks_showcase_block($attributes) {
 function tedx_render_companies_showcase_block($attributes) {
 
     //$company_type = is_front_page() ? 'volunteer' : 'partners';
-        
-    $company_type = isset($attributes['company_type']) ? esc_html($attributes['company_type']) : 'Not selected';
 
-    $query = new WP_Query([
+    $company_type = isset($attributes['company_type']) ? esc_html($attributes['company_type']) : '';
+
+    $query_args = [
         'post_type' => 'company',
         'posts_per_page' => 3,
-        'tax_query' => array(
+    ];
+
+    // Only add tax_query if a specific company type is selected
+    if (!empty($company_type)) {
+        $query_args['tax_query'] = array(
             array(
                 'taxonomy' => 'company_type',
                 'field'    => 'slug',
                 'terms'    => $company_type,
             ),
-        ),
-    ]);
+        );
+    }
 
-    
+    $query = new WP_Query($query_args);
+
+
     if (!$query->have_posts()) {
-        return '<p>No companies found for type '.$company_type.'.</p>';
+        $message = empty($company_type) ? 'No companies found.' : 'No companies found for type ' . $company_type . '.';
+        return '<p>' . $message . '</p>';
     }
 
 $company_count = $query->post_count;
