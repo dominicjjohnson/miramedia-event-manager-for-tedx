@@ -89,11 +89,18 @@ function tedx_render_people_showcase_block($attributes) {
 
     //$person_type = is_front_page() ? 'team' : 'team';
     $person_type = isset($attributes['person_type']) ? esc_html($attributes['person_type']) : '';
+    $per_page = isset($attributes['per_page']) ? $attributes['per_page'] : '-1';
+    $random_order = isset($attributes['random_order']) ? $attributes['random_order'] : false;
+
+    // Handle -1 as ALL
+    if ($per_page == '-1') {
+        $per_page = -1;
+    }
 
     $query_args = [
         'post_type' => 'person',
-        'posts_per_page' => -1,
-        'orderby' => 'title',
+        'posts_per_page' => intval($per_page),
+        'orderby' => $random_order ? 'rand' : 'title',
     ];
 
     // Only add tax_query if a specific person type is selected
@@ -164,11 +171,18 @@ function tedx_render_talks_showcase_block($attributes) {
 
     // Get the selected year from the block attributes
     $talk_year = isset($attributes['year']) ? esc_html($attributes['year']) : '';
+    $per_page = isset($attributes['per_page']) ? $attributes['per_page'] : '-1';
+    $random_order = isset($attributes['random_order']) ? $attributes['random_order'] : false;
+
+    // Handle -1 as ALL
+    if ($per_page == '-1') {
+        $per_page = -1;
+    }
 
     $query_args = [
         'post_type' => 'talk',
-        'posts_per_page' => -1,
-        'orderby' => 'rand',
+        'posts_per_page' => intval($per_page),
+        'orderby' => $random_order ? 'rand' : 'date',
         'meta_query' => array(
             array(
                 'key'     => '_thumbnail_id',
@@ -256,10 +270,18 @@ function tedx_render_companies_showcase_block($attributes) {
     //$company_type = is_front_page() ? 'volunteer' : 'partners';
 
     $company_type = isset($attributes['company_type']) ? esc_html($attributes['company_type']) : '';
+    $per_page = isset($attributes['per_page']) ? $attributes['per_page'] : '-1';
+    $random_order = isset($attributes['random_order']) ? $attributes['random_order'] : false;
+
+    // Handle -1 as ALL
+    if ($per_page == '-1') {
+        $per_page = -1;
+    }
 
     $query_args = [
         'post_type' => 'company',
-        'posts_per_page' => 3,
+        'posts_per_page' => intval($per_page),
+        'orderby' => $random_order ? 'rand' : 'title',
     ];
 
     // Only add tax_query if a specific company type is selected

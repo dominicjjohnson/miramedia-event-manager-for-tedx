@@ -1,13 +1,11 @@
 <?php
 /*
 Plugin Name: TEDx Custom Post Types
-Description: The plugin is going to create different custom post types: 
+Description: The plugin is going to create different custom post types:
 - TEDx Talks
-- TEDx Companies    
+- TEDx Companies
 - TEDx People
-Version: 1.1
-Author: Dominic Johnson / Miramedia
-Version: 1.1 - amended locaally, adding taxonomy and custom fields to blocks
+Version: 1.2
 Author: Dominic Johnson / Miramedia
 */
 

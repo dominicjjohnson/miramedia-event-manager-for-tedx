@@ -120,21 +120,44 @@
 }
 /* General container styles (Companies) */
 .company-showcase {
-    max-width: 800px; /* Maximum width for the container change to 1200 if 3 logos */
+    max-width: 1200px; /* Maximum width for the container */
     margin: 0 auto; /* Center the container */
     padding: 20px;
     border-radius: 8px;
     display: grid; /* Enable grid layout */
-    grid-template-columns: repeat(2, 1fr); /* 3 equal-width columns change the 3 if 3 logos */
+    grid-template-columns: repeat(3, 1fr); /* 3 equal-width columns */
     gap: 20px; /* Space between logos */
     text-align: center; /* Center the content in the grid */
     align-items: center; /* Align logos in the middle vertically */
+    justify-items: center; /* Center items horizontally within their grid cells */
+}
+
+/* Center 2 logos by using a 2-column grid */
+.company-showcase:has(.company-card:first-child:nth-last-child(2)) {
+    grid-template-columns: repeat(2, 1fr); /* Change to 2 columns when exactly 2 cards */
+}
+
+.company-showcase .company-card:first-child:nth-last-child(2) {
+    grid-column: 1; /* First logo in column 1 */
+}
+
+.company-showcase .company-card:first-child:nth-last-child(2) ~ .company-card {
+    grid-column: 2; /* Second logo in column 2 */
 }
 
 /* 1 logo wide on mobile */
 @media (max-width: 480px) {
     .company-showcase {
         grid-template-columns: 1fr; /* Single column on small screens */
+    }
+
+    /* Reset the centering on mobile */
+    .company-showcase .company-card:first-child:nth-last-child(2) {
+        grid-column: auto;
+    }
+
+    .company-showcase .company-card:first-child:nth-last-child(2) ~ .company-card {
+        grid-column: auto;
     }
 }
 

@@ -1,4 +1,3 @@
-
 // Add the new custom category - Miramedia
 wp.hooks.addFilter(
 	'blocks.registerBlockType',
@@ -30,6 +29,14 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
         person_type: {
             type: 'string',
             default: '', // Provide a default value to avoid undefined
+        },
+        per_page: {
+            type: 'string',
+            default: '-1', // -1 means ALL
+        },
+        random_order: {
+            type: 'boolean',
+            default: false,
         }
     },
     edit: ({ attributes, setAttributes }) => {
@@ -46,9 +53,11 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
             // Only log once on mount
             // eslint-disable-next-line no-console
             console.log("People Showcase block: current type attribute is", attributes.person_type);
-            // Check if this is an existing block with a saved selection (not just the default empty string)
-            // We need to check if hasUserSelected was previously set, but since we can't persist that,
-            // we'll rely on the user clicking the dropdown to trigger the preview
+            // If this block already has a saved person_type value (from being previously saved),
+            // automatically trigger the preview
+            if (attributes.person_type !== '' && attributes.person_type !== undefined) {
+                setHasUserSelected(true);
+            }
         }, []);
 
         useEffect(() => {
@@ -57,7 +66,8 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
                 .then((data) => {
                     const options = data.map(term => ({
                         label: term.name,
-                        value: term.slug
+                        value: term.slug,
+                        id: term.id
                     }));
                     setPerson_types(options);
                     setLoading(false);
@@ -75,30 +85,32 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
 
             setLoadingPeople(true);
 
+            const perPage = attributes.per_page || '-1';
+            const perPageParam = perPage === '-1' ? '100' : perPage; // Use 100 for preview when ALL is selected
+
             if (attributes.person_type) {
-                // Fetch people filtered by type
-                wp.apiFetch({ path: '/wp/v2/person_type?slug=' + attributes.person_type })
-                    .then((typeTerms) => {
-                        if (typeTerms.length > 0) {
-                            const apiPath = '/wp/v2/person?per_page=3&_embed&person_type=' + typeTerms[0].id;
-                            return wp.apiFetch({ path: apiPath });
-                        } else {
-                            // Type not found, return empty array
-                            return [];
-                        }
-                    })
-                    .then((data) => {
-                        setPeople(data);
-                        setLoadingPeople(false);
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching people:', error);
-                        setPeople([]);
-                        setLoadingPeople(false);
-                    });
+                // Find the ID for the selected slug
+                const selectedType = person_types.find(type => type.value === attributes.person_type);
+                if (selectedType && selectedType.id) {
+                    // Fetch people filtered by type using the people-filtered endpoint
+                    const apiPath = '/wp/v2/people-filtered?person_type=' + selectedType.id + '&per_page=' + perPageParam;
+                    wp.apiFetch({ path: apiPath })
+                        .then((data) => {
+                            setPeople(data);
+                            setLoadingPeople(false);
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching people:', error);
+                            setPeople([]);
+                            setLoadingPeople(false);
+                        });
+                } else {
+                    setPeople([]);
+                    setLoadingPeople(false);
+                }
             } else {
-                // Fetch all people
-                wp.apiFetch({ path: '/wp/v2/person?per_page=3&_embed' })
+                // Fetch all people using the people-filtered endpoint
+                wp.apiFetch({ path: '/wp/v2/people-filtered?per_page=' + perPageParam })
                     .then((data) => {
                         setPeople(data);
                         setLoadingPeople(false);
@@ -109,7 +121,7 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
                         setLoadingPeople(false);
                     });
             }
-        }, [attributes.person_type, hasUserSelected]);
+        }, [attributes.person_type, attributes.per_page, hasUserSelected, person_types]);
 
         // Find the selected person type name for display
         const selectedTypeName = attributes.person_type === '' || !attributes.person_type
@@ -128,17 +140,42 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
                     { title: 'People Settings', initialOpen: true },
                     loading
                         ? createElement('p', null, 'Loading person types...')
-                        : createElement(SelectControl, {
-                            label: "Person Type",
-                            value: attributes.person_type || '',
-                            options: [{ label: 'Display All', value: '' }, ...person_types],
-                            onChange: (value) => {
-                                setAttributes({ person_type: value });
-                                setHasUserSelected(true);
-                            },
-                            __nextHasNoMarginBottom: true,
-                            __next40pxDefaultSize: true
-                        })
+                        : createElement(wp.element.Fragment, null,
+                            createElement(SelectControl, {
+                                label: "Person Type",
+                                value: attributes.person_type || '',
+                                options: [{ label: 'Display All', value: '' }, ...person_types],
+                                onChange: (value) => {
+                                    setAttributes({ person_type: value });
+                                    setHasUserSelected(true);
+                                },
+                                __nextHasNoMarginBottom: true,
+                                __next40pxDefaultSize: true
+                            }),
+                            createElement(SelectControl, {
+                                label: "Number to Display",
+                                value: attributes.per_page || '-1',
+                                options: [
+                                    { label: 'ALL', value: '-1' },
+                                    { label: '3', value: '3' },
+                                    { label: '6', value: '6' },
+                                    { label: '9', value: '9' },
+                                    { label: '12', value: '12' }
+                                ],
+                                onChange: (value) => {
+                                    setAttributes({ per_page: value });
+                                },
+                                __nextHasNoMarginBottom: true,
+                                __next40pxDefaultSize: true
+                            }),
+                            createElement(wp.components.CheckboxControl, {
+                                label: "Display in Random Order",
+                                checked: attributes.random_order || false,
+                                onChange: (value) => {
+                                    setAttributes({ random_order: value });
+                                }
+                            })
+                        )
                 )
             ),
             // Main editor preview
@@ -195,9 +232,7 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
                                     }
                                 },
                                     people.map((person) => {
-                                        const photoUrl = person._embedded && person._embedded['wp:featuredmedia']
-                                            ? person._embedded['wp:featuredmedia'][0].source_url
-                                            : null;
+                                        const photoUrl = person.featured_media_url || null;
 
                                         return createElement('div', {
                                             key: person.id,
@@ -233,7 +268,7 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
                                 ),
                             people.length > 0 && createElement('p', {
                                 style: { margin: '10px 0 0 0', fontSize: '12px', color: '#888', fontStyle: 'italic' }
-                            }, 'Showing up to 3 people')
+                            }, attributes.per_page === '-1' ? 'Showing all people' : 'Showing up to ' + attributes.per_page + ' people')
                         )
             )
         );
@@ -254,6 +289,14 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
         year: {
             type: 'string',
             default: '', // Provide a default value to avoid undefined
+        },
+        per_page: {
+            type: 'string',
+            default: '-1', // -1 means ALL
+        },
+        random_order: {
+            type: 'boolean',
+            default: false,
         }
     },
     edit: ({ attributes, setAttributes }) => {
@@ -270,9 +313,11 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
             // Only log once on mount
             // eslint-disable-next-line no-console
             console.log("Talks Showcase block: current year attribute is", attributes.year);
-            // Check if this is an existing block with a saved selection (not just the default empty string)
-            // We need to check if hasUserSelected was previously set, but since we can't persist that,
-            // we'll rely on the user clicking the dropdown to trigger the preview
+            // If this block already has a saved year value (from being previously saved),
+            // automatically trigger the preview
+            if (attributes.year !== '' && attributes.year !== undefined) {
+                setHasUserSelected(true);
+            }
         }, []);
 
         useEffect(() => {
@@ -281,7 +326,8 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
                 .then((data) => {
                     const options = data.map(term => ({
                         label: term.name,
-                        value: term.slug
+                        value: term.slug,
+                        id: term.id
                     }));
                     setYears(options);
                     setLoading(false);
@@ -299,36 +345,36 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
 
             setLoadingTalks(true);
 
+            const perPage = attributes.per_page || '-1';
+            const perPageParam = perPage === '-1' ? '100' : perPage; // Use 100 for preview when ALL is selected
+
             if (attributes.year) {
-                // Fetch talks filtered by year
-                console.log('Fetching talks for year:', attributes.year);
-                wp.apiFetch({ path: '/wp/v2/talk_year?slug=' + attributes.year })
-                    .then((yearTerms) => {
-                        console.log('Year terms found:', yearTerms);
-                        if (yearTerms.length > 0) {
-                            const apiPath = '/wp/v2/talk?per_page=3&_embed&talk_year=' + yearTerms[0].id;
-                            console.log('Fetching talks with path:', apiPath);
-                            return wp.apiFetch({ path: apiPath });
-                        } else {
-                            // Year not found, return empty array
-                            console.log('No year term found for slug:', attributes.year);
-                            return [];
-                        }
-                    })
-                    .then((data) => {
-                        console.log('Talks received:', data);
-                        setTalks(data);
-                        setLoadingTalks(false);
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching talks:', error);
-                        setTalks([]);
-                        setLoadingTalks(false);
-                    });
+                // Find the ID for the selected slug
+                const selectedYear = years.find(y => y.value === attributes.year);
+                if (selectedYear && selectedYear.id) {
+                    // Fetch talks filtered by year using the talks-filtered endpoint
+                    const apiPath = '/wp/v2/talks-filtered?talk_year=' + selectedYear.id + '&per_page=' + perPageParam;
+                    console.log('Fetching talks with path:', apiPath);
+                    wp.apiFetch({ path: apiPath })
+                        .then((data) => {
+                            console.log('Talks received:', data);
+                            setTalks(data);
+                            setLoadingTalks(false);
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching talks:', error);
+                            setTalks([]);
+                            setLoadingTalks(false);
+                        });
+                } else {
+                    console.log('No year ID found for slug:', attributes.year);
+                    setTalks([]);
+                    setLoadingTalks(false);
+                }
             } else {
-                // Fetch all talks
+                // Fetch all talks using the talks-filtered endpoint
                 console.log('Fetching all talks');
-                wp.apiFetch({ path: '/wp/v2/talk?per_page=3&_embed' })
+                wp.apiFetch({ path: '/wp/v2/talks-filtered?per_page=' + perPageParam })
                     .then((data) => {
                         console.log('All talks received:', data);
                         setTalks(data);
@@ -340,7 +386,7 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
                         setLoadingTalks(false);
                     });
             }
-        }, [attributes.year, hasUserSelected]);
+        }, [attributes.year, attributes.per_page, hasUserSelected, years]);
 
         // Find the selected year name for display
         const selectedYearName = attributes.year === '' || !attributes.year
@@ -359,17 +405,42 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
                     { title: 'Talk Settings', initialOpen: true },
                     loading
                         ? createElement('p', null, 'Loading years...')
-                        : createElement(SelectControl, {
-                            label: "Year",
-                            value: attributes.year || '',
-                            options: [{ label: 'Display All', value: '' }, ...years],
-                            onChange: (value) => {
-                                setAttributes({ year: value });
-                                setHasUserSelected(true);
-                            },
-                            __nextHasNoMarginBottom: true,
-                            __next40pxDefaultSize: true
-                        })
+                        : createElement(wp.element.Fragment, null,
+                            createElement(SelectControl, {
+                                label: "Year",
+                                value: attributes.year || '',
+                                options: [{ label: 'Display All', value: '' }, ...years],
+                                onChange: (value) => {
+                                    setAttributes({ year: value });
+                                    setHasUserSelected(true);
+                                },
+                                __nextHasNoMarginBottom: true,
+                                __next40pxDefaultSize: true
+                            }),
+                            createElement(SelectControl, {
+                                label: "Number to Display",
+                                value: attributes.per_page || '-1',
+                                options: [
+                                    { label: 'ALL', value: '-1' },
+                                    { label: '3', value: '3' },
+                                    { label: '6', value: '6' },
+                                    { label: '9', value: '9' },
+                                    { label: '12', value: '12' }
+                                ],
+                                onChange: (value) => {
+                                    setAttributes({ per_page: value });
+                                },
+                                __nextHasNoMarginBottom: true,
+                                __next40pxDefaultSize: true
+                            }),
+                            createElement(wp.components.CheckboxControl, {
+                                label: "Display in Random Order",
+                                checked: attributes.random_order || false,
+                                onChange: (value) => {
+                                    setAttributes({ random_order: value });
+                                }
+                            })
+                        )
                 )
             ),
             // Main editor preview
@@ -426,9 +497,7 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
                                     }
                                 },
                                     talks.map((talk) => {
-                                        const thumbnailUrl = talk._embedded && talk._embedded['wp:featuredmedia']
-                                            ? talk._embedded['wp:featuredmedia'][0].source_url
-                                            : null;
+                                        const thumbnailUrl = talk.featured_media_url || null;
 
                                         return createElement('div', {
                                             key: talk.id,
@@ -464,7 +533,7 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
                                 ),
                             talks.length > 0 && createElement('p', {
                                 style: { margin: '10px 0 0 0', fontSize: '12px', color: '#888', fontStyle: 'italic' }
-                            }, 'Showing up to 3 talks')
+                            }, attributes.per_page === '-1' ? 'Showing all talks' : 'Showing up to ' + attributes.per_page + ' talks')
                         )
             )
         );
@@ -481,6 +550,14 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
         company_type: {
             type: 'string',
             default: '', // Provide a default value to avoid undefined
+        },
+        per_page: {
+            type: 'string',
+            default: '-1', // -1 means ALL
+        },
+        random_order: {
+            type: 'boolean',
+            default: false,
         }
     },
     edit: ({ attributes, setAttributes }) => {
@@ -492,14 +569,20 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
         const { InspectorControls } = wp.blockEditor;
         const { PanelBody } = wp.components;
 
+        // DEBUG: Log every time the component renders
+        console.log('===== RENDER: company_type =', attributes.company_type, 'hasUserSelected =', hasUserSelected);
+
         // Log the current person_type attribute when the block editor loads
         useEffect(() => {
             // Only log once on mount
             // eslint-disable-next-line no-console
-            console.log("Company block: current type attribute is", attributes.company_type);
-            // Check if this is an existing block with a saved selection (not just the default empty string)
-            // We need to check if hasUserSelected was previously set, but since we can't persist that,
-            // we'll rely on the user clicking the dropdown to trigger the preview
+            console.log("Company block MOUNT: current type attribute is", attributes.company_type);
+            // If this block already has a saved company_type value (from being previously saved),
+            // automatically trigger the preview
+            if (attributes.company_type !== '' && attributes.company_type !== undefined) {
+                console.log("Company block MOUNT: Setting hasUserSelected to true");
+                setHasUserSelected(true);
+            }
         }, []);
 
         useEffect(() => {
@@ -508,7 +591,8 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
                 .then((data) => {
                     const options = data.map(term => ({
                         label: term.name,
-                        value: term.slug
+                        value: term.slug,
+                        id: term.id
                     }));
                     setCompany_types(options);
                     setLoading(false);
@@ -522,34 +606,44 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
 
         // Fetch companies preview when user has selected
         useEffect(() => {
-            if (!hasUserSelected) return;
+            console.log('===== FETCH USEEFFECT TRIGGERED! hasUserSelected:', hasUserSelected, 'company_type:', attributes.company_type);
+            if (!hasUserSelected) {
+                console.log('===== FETCH USEEFFECT: Returning early because hasUserSelected is false');
+                return;
+            }
 
             setLoadingCompanies(true);
+            console.log('===== FETCH USEEFFECT: Starting fetch for type:', attributes.company_type);
+
+            const perPage = attributes.per_page || '-1';
+            const perPageParam = perPage === '-1' ? '100' : perPage; // Use 100 for preview when ALL is selected
 
             if (attributes.company_type) {
-                // Fetch companies filtered by type
-                wp.apiFetch({ path: '/wp/v2/company_type?slug=' + attributes.company_type })
-                    .then((typeTerms) => {
-                        if (typeTerms.length > 0) {
-                            const apiPath = '/wp/v2/company?per_page=3&_embed&company_type=' + typeTerms[0].id;
-                            return wp.apiFetch({ path: apiPath });
-                        } else {
-                            // Type not found, return empty array
-                            return [];
-                        }
-                    })
-                    .then((data) => {
-                        setCompanies(data);
-                        setLoadingCompanies(false);
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching companies:', error);
-                        setCompanies([]);
-                        setLoadingCompanies(false);
-                    });
+                // Find the ID for the selected slug
+                const selectedType = company_types.find(type => type.value === attributes.company_type);
+                if (selectedType && selectedType.id) {
+                    // Fetch companies filtered by type using the companies-filtered endpoint
+                    const apiPath = '/wp/v2/companies-filtered?company_type=' + selectedType.id + '&per_page=' + perPageParam;
+                    console.log('Fetching companies with path:', apiPath);
+                    wp.apiFetch({ path: apiPath })
+                        .then((data) => {
+                            console.log('Companies received:', data);
+                            setCompanies(data);
+                            setLoadingCompanies(false);
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching companies:', error);
+                            setCompanies([]);
+                            setLoadingCompanies(false);
+                        });
+                } else {
+                    console.log('No company type ID found for slug:', attributes.company_type);
+                    setCompanies([]);
+                    setLoadingCompanies(false);
+                }
             } else {
-                // Fetch all companies
-                wp.apiFetch({ path: '/wp/v2/company?per_page=3&_embed' })
+                // Fetch all companies using the companies-filtered endpoint
+                wp.apiFetch({ path: '/wp/v2/companies-filtered?per_page=' + perPageParam })
                     .then((data) => {
                         setCompanies(data);
                         setLoadingCompanies(false);
@@ -560,7 +654,7 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
                         setLoadingCompanies(false);
                     });
             }
-        }, [attributes.company_type, hasUserSelected]);
+        }, [attributes.company_type, attributes.per_page, hasUserSelected, company_types]);
 
         // Find the selected company type name for display
         const selectedTypeName = attributes.company_type === '' || !attributes.company_type
@@ -579,17 +673,47 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
                     { title: 'Company Settings', initialOpen: true },
                     loading
                         ? createElement('p', null, 'Loading company types...')
-                        : createElement(SelectControl, {
-                            label: "Company Type",
-                            value: attributes.company_type || '',
-                            options: [{ label: 'Display All', value: '' }, ...company_types],
-                            onChange: (value) => {
-                                setAttributes({ company_type: value });
-                                setHasUserSelected(true);
-                            },
-                            __nextHasNoMarginBottom: true,
-                            __next40pxDefaultSize: true
-                        })
+                        : createElement(wp.element.Fragment, null,
+                            createElement(SelectControl, {
+                                label: "Company Type",
+                                value: attributes.company_type || '',
+                                options: [{ label: 'Display All', value: '' }, ...company_types],
+                                onChange: (value) => {
+                                    console.log('===== ONCHANGE: Dropdown changed to:', value);
+                                    console.log('===== ONCHANGE: About to call setAttributes');
+                                    setAttributes({ company_type: value });
+                                    console.log('===== ONCHANGE: setAttributes called');
+                                    console.log('===== ONCHANGE: About to call setHasUserSelected(true)');
+                                    setHasUserSelected(true);
+                                    console.log('===== ONCHANGE: setHasUserSelected called');
+                                },
+                                __nextHasNoMarginBottom: true,
+                                __next40pxDefaultSize: true
+                            }),
+                            createElement(SelectControl, {
+                                label: "Number to Display",
+                                value: attributes.per_page || '-1',
+                                options: [
+                                    { label: 'ALL', value: '-1' },
+                                    { label: '3', value: '3' },
+                                    { label: '6', value: '6' },
+                                    { label: '9', value: '9' },
+                                    { label: '12', value: '12' }
+                                ],
+                                onChange: (value) => {
+                                    setAttributes({ per_page: value });
+                                },
+                                __nextHasNoMarginBottom: true,
+                                __next40pxDefaultSize: true
+                            }),
+                            createElement(wp.components.CheckboxControl, {
+                                label: "Display in Random Order",
+                                checked: attributes.random_order || false,
+                                onChange: (value) => {
+                                    setAttributes({ random_order: value });
+                                }
+                            })
+                        )
                 )
             ),
             // Main editor preview
@@ -646,9 +770,7 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
                                     }
                                 },
                                     companies.map((company) => {
-                                        const logoUrl = company._embedded && company._embedded['wp:featuredmedia']
-                                            ? company._embedded['wp:featuredmedia'][0].source_url
-                                            : null;
+                                        const logoUrl = company.featured_media_url || null;
 
                                         return createElement('div', {
                                             key: company.id,
@@ -657,32 +779,37 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
                                                 border: '1px solid #e0e0e0',
                                                 borderRadius: '4px',
                                                 backgroundColor: '#fff',
-                                                textAlign: 'center'
+                                                textAlign: 'center',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
                                             }
                                         },
-                                            logoUrl && createElement('img', {
+                                            logoUrl ? createElement('img', {
                                                 src: logoUrl,
                                                 alt: company.title.rendered,
                                                 style: {
                                                     maxWidth: '100%',
+                                                    width: '100%',
                                                     height: 'auto',
                                                     maxHeight: '100px',
                                                     objectFit: 'contain'
                                                 }
-                                            }),
-                                            createElement('p', {
+                                            }) : createElement('p', {
                                                 style: {
-                                                    margin: '5px 0 0 0',
+                                                    margin: '5px 0',
                                                     fontSize: '12px',
-                                                    color: '#666'
+                                                    color: '#999',
+                                                    fontStyle: 'italic'
                                                 }
-                                            }, company.title.rendered)
+                                            }, 'No logo')
                                         );
                                     })
                                 ),
                             companies.length > 0 && createElement('p', {
                                 style: { margin: '10px 0 0 0', fontSize: '12px', color: '#888', fontStyle: 'italic' }
-                            }, 'Showing up to 3 companies')
+                            }, attributes.per_page === '-1' ? 'Showing all companies' : 'Showing up to ' + attributes.per_page + ' companies')
                         )
             )
         );

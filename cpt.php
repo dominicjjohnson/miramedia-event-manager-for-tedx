@@ -89,6 +89,56 @@ register_taxonomy('company_type', 'company', array(
 
 }
 add_action('init', 'TEDx_register_taxonomies');
+
+// Add REST API support for taxonomy filtering
+function tedx_add_rest_taxonomy_filter() {
+    // Register company_type filter for company post type
+    add_filter('rest_company_query', function($args, $request) {
+        error_log('REST COMPANY QUERY FILTER TRIGGERED');
+        error_log('Request params: ' . print_r($request->get_params(), true));
+        if (isset($request['company_type'])) {
+            error_log('Adding tax_query for company_type: ' . $request['company_type']);
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'company_type',
+                    'field' => 'term_id',
+                    'terms' => $request['company_type'],
+                )
+            );
+        }
+        error_log('Final args: ' . print_r($args, true));
+        return $args;
+    }, 10, 2);
+
+    // Register person_type filter for person post type
+    add_filter('rest_person_query', function($args, $request) {
+        if (isset($request['person_type'])) {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'person_type',
+                    'field' => 'term_id',
+                    'terms' => $request['person_type'],
+                )
+            );
+        }
+        return $args;
+    }, 10, 2);
+
+    // Register talk_year filter for talk post type
+    add_filter('rest_talk_query', function($args, $request) {
+        if (isset($request['talk_year'])) {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'talk_year',
+                    'field' => 'term_id',
+                    'terms' => $request['talk_year'],
+                )
+            );
+        }
+        return $args;
+    }, 10, 2);
+}
+add_action('rest_api_init', 'tedx_add_rest_taxonomy_filter');
 // Register custom post types
 function TEDx_register_custom_post_types() {
     TEDx_register_custom_post_types_people();
@@ -136,6 +186,8 @@ function TEDx_register_custom_post_types_people () {
         'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'), // 'thumbnail' for featured image
         'taxonomies' => array('person_type'),
         'show_in_rest' => true,
+        'rest_base' => 'person',
+        'rest_controller_class' => 'WP_REST_Posts_Controller',
         'register_meta_box_cb' => function() {
             add_meta_box('person_meta_box', 'Person Details', function($post) {
             $meta = get_post_meta($post->ID);
@@ -217,6 +269,8 @@ function TEDx_register_custom_post_types_company() {
         'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'),
         'taxonomies' => array('company_type'), // Updated taxonomy to 'company_type'
         'show_in_rest' => true,
+        'rest_base' => 'company',
+        'rest_controller_class' => 'WP_REST_Posts_Controller',
         'register_meta_box_cb' => function() {
             add_meta_box('company_meta_box', 'Company Details', function($post) {
                 $meta = get_post_meta($post->ID);
@@ -297,6 +351,8 @@ function TEDx_register_custom_post_types_talks() {
         'rewrite'           => array('slug' => 'talk', 'with_front' => false),
         'taxonomies' => array('talk_year'), // Use 'talk_year' taxonomy
         'show_in_rest' => true,
+        'rest_base' => 'talk',
+        'rest_controller_class' => 'WP_REST_Posts_Controller',
         'register_meta_box_cb' => function() {
             add_meta_box('talk_meta_box', 'Talk Details', function($post) {
                 $meta = get_post_meta($post->ID);
