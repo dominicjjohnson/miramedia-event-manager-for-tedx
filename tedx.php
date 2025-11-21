@@ -2,12 +2,12 @@
 /*
 Plugin Name: TEDx Event Manager
 Description: Comprehensive event management plugin for TEDx organizers. Manage talks, speakers, and sponsor companies with custom Gutenberg blocks and advanced filtering options.
-Version: 1.2
+Version: 1.3
 Author: Dominic Johnson / Miramedia
 Author URI: https://miramedia.co.uk
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: tedx
+Text Domain: tedx-event-manager
 */
 
 // Exit if accessed directly.

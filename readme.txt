@@ -4,7 +4,7 @@ Tags: tedx, event management, gutenberg blocks, custom post types, speakers
 Requires at least: 5.9
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable Tag: 1.2
+Stable Tag: 1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,14 @@ Yes, each showcase block has a "Display in Random Order" checkbox option.
 5. Custom post type management in WordPress admin
 
 == Changelog ==
+
+= 1.3 =
+* Renamed plugin to "TEDx Event Manager"
+* Added proper License and License URI headers
+* Fixed Text Domain to match plugin slug (tedx-event-manager)
+* Removed heredoc syntax from shortcodes for WordPress.org compliance
+* Updated readme.txt with comprehensive documentation
+* WordPress Plugin Directory submission preparation
 
 = 1.2 =
 * Added filtered REST API endpoints for all custom post types

@@ -7,21 +7,19 @@ function tedx_youtube_shortcode($atts) {
         // Convert regular YouTube URL to an embed link.
         $youtube_link = preg_replace("/watch\?v=/", "embed/", $youtube_link);
 
-        $output = <<<HTML
-        <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
-            <div style="position: relative; width: 100%; max-width: 854px; aspect-ratio: 16 / 9;">
-            <iframe 
-                src="{$youtube_link}" 
-                title="YouTube video player" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerpolicy="strict-origin-when-cross-origin" 
-                allowfullscreen
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-            ></iframe>
-            </div>
-        </div>
-        HTML;
+        $output = '<div style="display: flex; justify-content: center; align-items: center; width: 100%;">';
+        $output .= '<div style="position: relative; width: 100%; max-width: 854px; aspect-ratio: 16 / 9;">';
+        $output .= '<iframe ';
+        $output .= 'src="' . esc_url($youtube_link) . '" ';
+        $output .= 'title="YouTube video player" ';
+        $output .= 'frameborder="0" ';
+        $output .= 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ';
+        $output .= 'referrerpolicy="strict-origin-when-cross-origin" ';
+        $output .= 'allowfullscreen ';
+        $output .= 'style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">';
+        $output .= '</iframe>';
+        $output .= '</div>';
+        $output .= '</div>';
     }
 
     return $output;    
