@@ -1,12 +1,13 @@
 <?php
 /*
-Plugin Name: TEDx Custom Post Types
-Description: The plugin is going to create different custom post types:
-- TEDx Talks
-- TEDx Companies
-- TEDx People
+Plugin Name: TEDx Event Manager
+Description: Comprehensive event management plugin for TEDx organizers. Manage talks, speakers, and sponsor companies with custom Gutenberg blocks and advanced filtering options.
 Version: 1.2
 Author: Dominic Johnson / Miramedia
+Author URI: https://miramedia.co.uk
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: tedx
 */
 
 // Exit if accessed directly.
