@@ -7,7 +7,7 @@
  * Author URI: https://miramedia.co.uk
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: miramedia-event-manager-for-tedx
+ * Text Domain: tedx-event-manager
  */
 
 // Exit if accessed directly.
@@ -66,7 +66,9 @@ function miramedia_tedx_disable_comments() {
 
     // Redirect any user trying to access comments page in the admin
     add_action('admin_init', function() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         if (is_admin() && isset($_GET['page'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $page = sanitize_text_field(wp_unslash($_GET['page']));
             if ($page === 'edit-comments.php') {
                 wp_safe_redirect(admin_url());
