@@ -27,7 +27,7 @@ function register_custom_blocks() {
 
     register_block_type('miramedia/people-showcase', array(
         'editor_script' => 'custom-blocks',
-        'render_callback' => 'tedx_render_people_showcase_block', // Server-side rendering for the block.
+        'render_callback' => 'miramedia_tedx_render_people_showcase_block', // Server-side rendering for the block.
         'attributes' => array(
             'personType' => array(
                 'type' => 'string',
@@ -45,7 +45,7 @@ function register_custom_blocks() {
 
     register_block_type('miramedia/talks-showcase', array(
         'editor_script' => 'custom-blocks',
-        'render_callback' => 'tedx_render_talks_showcase_block', // Server-side rendering for the block.
+        'render_callback' => 'miramedia_tedx_render_talks_showcase_block', // Server-side rendering for the block.
         'attributes' => array(
             'year' => array(
             'type' => 'string',
@@ -62,7 +62,7 @@ function register_custom_blocks() {
 
     register_block_type('miramedia/companies-showcase', array(
         'editor_script' => 'custom-blocks',
-        'render_callback' => 'tedx_render_companies_showcase_block', // Server-side rendering for the block.
+        'render_callback' => 'miramedia_tedx_render_companies_showcase_block', // Server-side rendering for the block.
         'attributes' => array(
             'numberOfCompanies' => array(
                 'type' => 'number',
@@ -85,7 +85,7 @@ add_action('init', 'register_custom_blocks');
 
 // USER SIDE BLOCK CODE - display db calls
 
-function tedx_render_people_showcase_block($attributes) {
+function miramedia_tedx_render_people_showcase_block($attributes) {
 
     //$person_type = is_front_page() ? 'team' : 'team';
     $person_type = isset($attributes['person_type']) ? esc_html($attributes['person_type']) : '';
@@ -164,7 +164,7 @@ function tedx_render_people_showcase_block($attributes) {
     return $output;
 }
 
-function tedx_render_talks_showcase_block($attributes) {
+function miramedia_tedx_render_talks_showcase_block($attributes) {
 
     // Set a flag for now to switch between linking to YouTube or the talk post
     $link_to_youtube = isset($attributes['linkToYoutube']) ? (bool) $attributes['linkToYoutube'] : false;
@@ -265,7 +265,7 @@ function tedx_render_talks_showcase_block($attributes) {
     return $output;
 }
 
-function tedx_render_companies_showcase_block($attributes) {
+function miramedia_tedx_render_companies_showcase_block($attributes) {
 
     //$company_type = is_front_page() ? 'volunteer' : 'partners';
 

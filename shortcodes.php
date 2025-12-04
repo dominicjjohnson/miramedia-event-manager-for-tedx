@@ -1,5 +1,5 @@
 <?php
-function tedx_youtube_shortcode($atts) {
+function miramedia_tedx_youtube_shortcode($atts) {
     $youtube_link = get_post_meta(get_the_ID(), 'youtube_link', true);
     $output = '<!-- Must be the list page - No YouTube link found. -->';
 
@@ -24,10 +24,10 @@ function tedx_youtube_shortcode($atts) {
 
     return $output;    
 }
-add_shortcode('tedx_youtube', 'tedx_youtube_shortcode');
+add_shortcode('tedx_youtube', 'miramedia_tedx_youtube_shortcode');
 
 
-function tedx_speaker_shortcode($atts) {
+function miramedia_tedx_speaker_shortcode($atts) {
     // Get the current talk post ID
     $talk_post_id = get_the_ID();
 
@@ -79,7 +79,7 @@ function tedx_speaker_shortcode($atts) {
 
     return $output;
 }
-add_shortcode('tedx_speaker', 'tedx_speaker_shortcode');
+add_shortcode('tedx_speaker', 'miramedia_tedx_speaker_shortcode');
 
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 
 // Register custom taxonomies
-function TEDx_register_taxonomies() {
+function miramedia_tedx_register_taxonomies() {
 
 // Register post meta for Person Type
 register_post_meta('person', 'person_type', array(
@@ -88,7 +88,7 @@ register_taxonomy('company_type', 'company', array(
 
 
 }
-add_action('init', 'TEDx_register_taxonomies');
+add_action('init', 'miramedia_tedx_register_taxonomies');
 
 // Add REST API support for taxonomy filtering
 function tedx_add_rest_taxonomy_filter() {
@@ -140,14 +140,14 @@ function tedx_add_rest_taxonomy_filter() {
 }
 add_action('rest_api_init', 'tedx_add_rest_taxonomy_filter');
 // Register custom post types
-function TEDx_register_custom_post_types() {
-    TEDx_register_custom_post_types_people();
-    TEDx_register_custom_post_types_company();
-    TEDx_register_custom_post_types_talks();
+function miramedia_tedx_register_custom_post_types() {
+    miramedia_tedx_register_custom_post_types_people();
+    miramedia_tedx_register_custom_post_types_company();
+    miramedia_tedx_register_custom_post_types_talks();
 }
-add_action('init', 'TEDx_register_custom_post_types');
+add_action('init', 'miramedia_tedx_register_custom_post_types');
 
-function TEDx_register_custom_post_types_people () {
+function miramedia_tedx_register_custom_post_types_people () {
 
     // People CPT
     register_post_type('person', array(
@@ -239,7 +239,7 @@ function TEDx_register_custom_post_types_people () {
     });
 }
 
-function TEDx_register_custom_post_types_company() {
+function miramedia_tedx_register_custom_post_types_company() {
 
     // Company CPT
     register_post_type('company', array(
@@ -320,7 +320,7 @@ function TEDx_register_custom_post_types_company() {
     });
 }
 
-function TEDx_register_custom_post_types_talks() {
+function miramedia_tedx_register_custom_post_types_talks() {
 
     // Talks CPT
     register_post_type('talk', array(

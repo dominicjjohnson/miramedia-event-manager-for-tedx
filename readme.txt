@@ -1,4 +1,4 @@
-=== TEDx Event Manager ===
+=== Miramedia Event Manager for TEDx ===
 Contributors: dominicmiramediacouk
 Tags: tedx, event management, gutenberg blocks, custom post types, speakers
 Requires at least: 5.9
@@ -12,7 +12,7 @@ Event management for TEDx organizers. Manage talks, speakers, and sponsors with 
 
 == Description ==
 
-TEDx Event Manager is a powerful WordPress plugin designed specifically for TEDx event organizers. It provides a complete solution for managing your TEDx event website with custom post types, taxonomies, and beautiful Gutenberg blocks.
+Miramedia Event Manager for TEDx is a powerful WordPress plugin designed specifically for TEDx event organizers. It provides a complete solution for managing your TEDx event website with custom post types, taxonomies, and beautiful Gutenberg blocks.
 
 **Key Features:**
 
@@ -57,7 +57,7 @@ TEDx Event Manager is a powerful WordPress plugin designed specifically for TEDx
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/tedx/`
+1. Upload the plugin folder to `/wp-content/plugins/miramedia-event-manager-for-tedx/`
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Start adding Talks, People, and Companies via the WordPress admin
 4. Use the custom Gutenberg blocks to display content on your pages
@@ -93,9 +93,9 @@ Yes, each showcase block has a "Display in Random Order" checkbox option.
 == Changelog ==
 
 = 1.3 =
-* Renamed plugin to "TEDx Event Manager"
+* Renamed plugin to "Miramedia Event Manager for TEDx"
 * Added proper License and License URI headers
-* Fixed Text Domain to match plugin slug (tedx-event-manager)
+* Fixed Text Domain to match plugin slug (miramedia-event-manager-for-tedx)
 * Removed heredoc syntax from shortcodes for WordPress.org compliance
 * Updated readme.txt with comprehensive documentation
 * WordPress Plugin Directory submission preparation
@@ -133,7 +133,7 @@ Major update with enhanced block controls, REST API endpoints, and improved grid
 Adds important taxonomy and custom field support. Update recommended.
 
 = 1.0 =
-First release of TEDx Event Manager.
+First release of Miramedia Event Manager for TEDx.
 
 == Technical Details ==
 
