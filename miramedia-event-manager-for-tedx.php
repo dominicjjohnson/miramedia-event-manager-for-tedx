@@ -1,14 +1,14 @@
 <?php
-/*
-Plugin Name: Miramedia Event Manager for TEDx
-Description: Comprehensive event management plugin for TEDx organizers. Manage talks, speakers, and sponsor companies with custom Gutenberg blocks and advanced filtering options.
-Version: 1.3
-Author: Dominic Johnson / Miramedia
-Author URI: https://miramedia.co.uk
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: miramedia-event-manager-for-tedx
-*/
+/**
+ * Plugin Name: Miramedia Event Manager for TEDx
+ * Description: Comprehensive event management plugin for TEDx organizers. Manage talks, speakers, and sponsor companies with custom Gutenberg blocks and advanced filtering options.
+ * Version: 1.3
+ * Author: Dominic Johnson / Miramedia
+ * Author URI: https://miramedia.co.uk
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: miramedia-event-manager-for-tedx
+ */
 
 // Exit if accessed directly.
 if (!defined('ABSPATH')) {
@@ -66,9 +66,12 @@ function miramedia_tedx_disable_comments() {
 
     // Redirect any user trying to access comments page in the admin
     add_action('admin_init', function() {
-        if (is_admin() && isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'edit-comments.php') {
-            wp_safe_redirect(admin_url());
-            exit;
+        if (is_admin() && isset($_GET['page'])) {
+            $page = sanitize_text_field(wp_unslash($_GET['page']));
+            if ($page === 'edit-comments.php') {
+                wp_safe_redirect(admin_url());
+                exit;
+            }
         }
     });
 
