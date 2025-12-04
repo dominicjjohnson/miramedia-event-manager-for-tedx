@@ -94,10 +94,7 @@ add_action('init', 'miramedia_tedx_register_taxonomies');
 function tedx_add_rest_taxonomy_filter() {
     // Register company_type filter for company post type
     add_filter('rest_company_query', function($args, $request) {
-        error_log('REST COMPANY QUERY FILTER TRIGGERED');
-        error_log('Request params: ' . print_r($request->get_params(), true));
         if (isset($request['company_type'])) {
-            error_log('Adding tax_query for company_type: ' . $request['company_type']);
             $args['tax_query'] = array(
                 array(
                     'taxonomy' => 'company_type',
@@ -106,7 +103,6 @@ function tedx_add_rest_taxonomy_filter() {
                 )
             );
         }
-        error_log('Final args: ' . print_r($args, true));
         return $args;
     }, 10, 2);
 
@@ -192,6 +188,7 @@ function miramedia_tedx_register_custom_post_types_people () {
             add_meta_box('person_meta_box', 'Person Details', function($post) {
             $meta = get_post_meta($post->ID);
             ?>
+            <?php wp_nonce_field('person_meta_nonce_action', 'person_meta_nonce'); ?>
             <p>
                 <label for="company_name">Company Name:</label><br>
                 <input type="text" id="company_name" name="company_name" value="<?php echo esc_attr($meta['company_name'][0] ?? ''); ?>" style="width: 100%;">
@@ -224,17 +221,27 @@ function miramedia_tedx_register_custom_post_types_people () {
 
     // Save custom fields
     add_action('save_post_person', function($post_id) {
+        // Verify nonce for security
+        if (!isset($_POST['person_meta_nonce']) || !wp_verify_nonce($_POST['person_meta_nonce'], 'person_meta_nonce_action')) {
+            return;
+        }
+        
+        // Check if current user can edit posts
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
         if (array_key_exists('company_name', $_POST)) {
-            update_post_meta($post_id, 'company_name', sanitize_text_field($_POST['company_name']));
+            update_post_meta($post_id, 'company_name', sanitize_text_field(wp_unslash($_POST['company_name'])));
         }
         if (array_key_exists('job_title', $_POST)) {
-            update_post_meta($post_id, 'job_title', sanitize_text_field($_POST['job_title']));
+            update_post_meta($post_id, 'job_title', sanitize_text_field(wp_unslash($_POST['job_title'])));
         }
         if (array_key_exists('email_address', $_POST)) {
-            update_post_meta($post_id, 'email_address', sanitize_email($_POST['email_address']));
+            update_post_meta($post_id, 'email_address', sanitize_email(wp_unslash($_POST['email_address'])));
         }
         if (array_key_exists('social_links', $_POST)) {
-            update_post_meta($post_id, 'social_links', sanitize_textarea_field($_POST['social_links']));
+            update_post_meta($post_id, 'social_links', sanitize_textarea_field(wp_unslash($_POST['social_links'])));
         }
     });
 }
