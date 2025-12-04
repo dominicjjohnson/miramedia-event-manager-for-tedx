@@ -282,6 +282,7 @@ function miramedia_tedx_register_custom_post_types_company() {
             add_meta_box('company_meta_box', 'Company Details', function($post) {
                 $meta = get_post_meta($post->ID);
                 ?>
+                <?php wp_nonce_field('company_meta_nonce_action', 'company_meta_nonce'); ?>
                 <p>
                     <label for="company_name">Company Name:</label><br>
                     <input type="text" id="company_name" name="company_name" value="<?php echo esc_attr($meta['company_name'][0] ?? ''); ?>" style="width: 100%;">
@@ -309,20 +310,30 @@ function miramedia_tedx_register_custom_post_types_company() {
 
     // Save custom fields
     add_action('save_post_company', function($post_id) {
+        // Verify nonce for security
+        if (!isset($_POST['company_meta_nonce']) || !wp_verify_nonce($_POST['company_meta_nonce'], 'company_meta_nonce_action')) {
+            return;
+        }
+        
+        // Check if current user can edit posts
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
         if (array_key_exists('company_name', $_POST)) {
-            update_post_meta($post_id, 'company_name', sanitize_text_field($_POST['company_name']));
+            update_post_meta($post_id, 'company_name', sanitize_text_field(wp_unslash($_POST['company_name'])));
         }
         if (array_key_exists('industry_type', $_POST)) {
-            update_post_meta($post_id, 'industry_type', sanitize_text_field($_POST['industry_type']));
+            update_post_meta($post_id, 'industry_type', sanitize_text_field(wp_unslash($_POST['industry_type'])));
         }
         if (array_key_exists('company_email', $_POST)) {
-            update_post_meta($post_id, 'company_email', sanitize_email($_POST['company_email']));
+            update_post_meta($post_id, 'company_email', sanitize_email(wp_unslash($_POST['company_email'])));
         }
         if (array_key_exists('social_links', $_POST)) {
-            update_post_meta($post_id, 'social_links', sanitize_textarea_field($_POST['social_links']));
+            update_post_meta($post_id, 'social_links', sanitize_textarea_field(wp_unslash($_POST['social_links'])));
         }
         if (array_key_exists('telephone_number', $_POST)) {
-            update_post_meta($post_id, 'telephone_number', sanitize_text_field($_POST['telephone_number']));
+            update_post_meta($post_id, 'telephone_number', sanitize_text_field(wp_unslash($_POST['telephone_number'])));
         }
     });
 }
@@ -372,6 +383,7 @@ function miramedia_tedx_register_custom_post_types_talks() {
                 ));
                 $selected_person = $meta['person_link'][0] ?? '';
                 ?>
+                <?php wp_nonce_field('talk_meta_nonce_action', 'talk_meta_nonce'); ?>
                 <p>
                     <label for="youtube_link">YouTube Link:</label>Add here to overwrite call to /talk and link to video<br>
                     <input type="url" id="youtube_link" name="youtube_link" value="<?php echo esc_attr($meta['youtube_link'][0] ?? ''); ?>" style="width: 100%;" placeholder="https://www.youtube.com/">
@@ -394,11 +406,21 @@ function miramedia_tedx_register_custom_post_types_talks() {
 
     // Save custom fields
     add_action('save_post_talk', function($post_id) {
+        // Verify nonce for security
+        if (!isset($_POST['talk_meta_nonce']) || !wp_verify_nonce($_POST['talk_meta_nonce'], 'talk_meta_nonce_action')) {
+            return;
+        }
+        
+        // Check if current user can edit posts
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
         if (array_key_exists('youtube_link', $_POST)) {
-            update_post_meta($post_id, 'youtube_link', esc_url_raw($_POST['youtube_link']));
+            update_post_meta($post_id, 'youtube_link', esc_url_raw(wp_unslash($_POST['youtube_link'])));
         }
         if (array_key_exists('person_link', $_POST)) {
-            update_post_meta($post_id, 'person_link', intval($_POST['person_link']));
+            update_post_meta($post_id, 'person_link', intval(wp_unslash($_POST['person_link'])));
         }
     });
 }
