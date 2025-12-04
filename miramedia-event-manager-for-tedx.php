@@ -22,8 +22,8 @@ require_once plugin_dir_path(__FILE__) . 'blocks.php';
 require_once plugin_dir_path(__FILE__) . 'shortcodes.php';
 
 // Define a constant for development mode.
-if (!defined('DEV_MODE')) {
-    define('DEV_MODE', true); // Set to false in production.
+if (!defined('MIRAMEDIA_TEDX_DEV_MODE')) {
+    define('MIRAMEDIA_TEDX_DEV_MODE', true); // Set to false in production.
 }
 
 
@@ -66,7 +66,7 @@ function miramedia_tedx_disable_comments() {
 
     // Redirect any user trying to access comments page in the admin
     add_action('admin_init', function() {
-        if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'edit-comments.php') {
+        if (is_admin() && isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'edit-comments.php') {
             wp_safe_redirect(admin_url());
             exit;
         }

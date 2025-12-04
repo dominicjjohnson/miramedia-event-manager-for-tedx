@@ -91,10 +91,11 @@ register_taxonomy('company_type', 'company', array(
 add_action('init', 'miramedia_tedx_register_taxonomies');
 
 // Add REST API support for taxonomy filtering
-function tedx_add_rest_taxonomy_filter() {
+function miramedia_tedx_add_rest_taxonomy_filter() {
     // Register company_type filter for company post type
     add_filter('rest_company_query', function($args, $request) {
         if (isset($request['company_type'])) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
             $args['tax_query'] = array(
                 array(
                     'taxonomy' => 'company_type',
@@ -109,6 +110,7 @@ function tedx_add_rest_taxonomy_filter() {
     // Register person_type filter for person post type
     add_filter('rest_person_query', function($args, $request) {
         if (isset($request['person_type'])) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
             $args['tax_query'] = array(
                 array(
                     'taxonomy' => 'person_type',
@@ -123,6 +125,7 @@ function tedx_add_rest_taxonomy_filter() {
     // Register talk_year filter for talk post type
     add_filter('rest_talk_query', function($args, $request) {
         if (isset($request['talk_year'])) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
             $args['tax_query'] = array(
                 array(
                     'taxonomy' => 'talk_year',
@@ -134,7 +137,7 @@ function tedx_add_rest_taxonomy_filter() {
         return $args;
     }, 10, 2);
 }
-add_action('rest_api_init', 'tedx_add_rest_taxonomy_filter');
+add_action('rest_api_init', 'miramedia_tedx_add_rest_taxonomy_filter');
 // Register custom post types
 function miramedia_tedx_register_custom_post_types() {
     miramedia_tedx_register_custom_post_types_people();
@@ -222,7 +225,7 @@ function miramedia_tedx_register_custom_post_types_people () {
     // Save custom fields
     add_action('save_post_person', function($post_id) {
         // Verify nonce for security
-        if (!isset($_POST['person_meta_nonce']) || !wp_verify_nonce($_POST['person_meta_nonce'], 'person_meta_nonce_action')) {
+        if (!isset($_POST['person_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['person_meta_nonce'])), 'person_meta_nonce_action')) {
             return;
         }
         
@@ -311,7 +314,7 @@ function miramedia_tedx_register_custom_post_types_company() {
     // Save custom fields
     add_action('save_post_company', function($post_id) {
         // Verify nonce for security
-        if (!isset($_POST['company_meta_nonce']) || !wp_verify_nonce($_POST['company_meta_nonce'], 'company_meta_nonce_action')) {
+        if (!isset($_POST['company_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['company_meta_nonce'])), 'company_meta_nonce_action')) {
             return;
         }
         
@@ -407,7 +410,7 @@ function miramedia_tedx_register_custom_post_types_talks() {
     // Save custom fields
     add_action('save_post_talk', function($post_id) {
         // Verify nonce for security
-        if (!isset($_POST['talk_meta_nonce']) || !wp_verify_nonce($_POST['talk_meta_nonce'], 'talk_meta_nonce_action')) {
+        if (!isset($_POST['talk_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['talk_meta_nonce'])), 'talk_meta_nonce_action')) {
             return;
         }
         

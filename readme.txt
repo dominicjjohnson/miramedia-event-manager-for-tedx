@@ -2,7 +2,7 @@
 Contributors: dominicmiramediacouk
 Tags: tedx, event management, gutenberg blocks, custom post types, speakers
 Requires at least: 5.9
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable Tag: 1.3
 License: GPLv2 or later

@@ -17,7 +17,7 @@ add_action('init', function () {
 add_action('rest_api_init', function () {
     register_rest_route('wp/v2', '/talk_year', [
         'methods'  => 'GET',
-        'callback' => 'get_talk_year_terms',
+        'callback' => 'miramedia_tedx_get_talk_year_terms',
         'permission_callback' => '__return_true',
         'args'     => [
             'per_page' => [
@@ -29,7 +29,7 @@ add_action('rest_api_init', function () {
 });
 // Access the endpoint at /wp-json/wp/v2/talk_year?per_page=100
 
-function get_talk_year_terms($request) {
+function miramedia_tedx_get_talk_year_terms($request) {
     $per_page = $request->get_param('per_page') ?: 100;
 
     // Ensure the taxonomy is correctly specified for 'talk'
@@ -73,7 +73,7 @@ add_action('init', function () {
 add_action('rest_api_init', function () {
     register_rest_route('wp/v2', '/person_type', [
         'methods'  => 'GET',
-        'callback' => 'get_person_type_terms',
+        'callback' => 'miramedia_tedx_get_person_type_terms',
         'permission_callback' => '__return_true',
         'args'     => [
             'per_page' => [
@@ -84,7 +84,7 @@ add_action('rest_api_init', function () {
     ]);
 });
 
-function get_person_type_terms($request) {
+function miramedia_tedx_get_person_type_terms($request) {
     $per_page = $request->get_param('per_page') ?: 100;
 
     // Ensure the taxonomy is correctly specified for 'person_type'
@@ -128,7 +128,7 @@ add_action('init', function () {
 add_action('rest_api_init', function () {
     register_rest_route('wp/v2', '/company_type', [
         'methods'  => 'GET',
-        'callback' => 'get_company_type_terms',
+        'callback' => 'miramedia_tedx_get_company_type_terms',
         'permission_callback' => '__return_true',
         'args'     => [
             'per_page' => [
@@ -139,7 +139,7 @@ add_action('rest_api_init', function () {
     ]);
 });
 
-function get_company_type_terms($request) {
+function miramedia_tedx_get_company_type_terms($request) {
     $per_page = $request->get_param('per_page') ?: 100;
 
     // Ensure the taxonomy is correctly specified for 'company_type'
@@ -171,7 +171,7 @@ add_action('rest_api_init', function () {
     // Register route for companies with company_type filter
     register_rest_route('wp/v2', '/companies-filtered', [
         'methods'  => 'GET',
-        'callback' => 'get_companies_by_type',
+        'callback' => 'miramedia_tedx_get_companies_by_type',
         'permission_callback' => '__return_true',
         'args'     => [
             'company_type' => [
@@ -188,7 +188,7 @@ add_action('rest_api_init', function () {
     // Register route for people with person_type filter
     register_rest_route('wp/v2', '/people-filtered', [
         'methods'  => 'GET',
-        'callback' => 'get_people_by_type',
+        'callback' => 'miramedia_tedx_get_people_by_type',
         'permission_callback' => '__return_true',
         'args'     => [
             'person_type' => [
@@ -205,7 +205,7 @@ add_action('rest_api_init', function () {
     // Register route for talks with talk_year filter
     register_rest_route('wp/v2', '/talks-filtered', [
         'methods'  => 'GET',
-        'callback' => 'get_talks_by_year',
+        'callback' => 'miramedia_tedx_get_talks_by_year',
         'permission_callback' => '__return_true',
         'args'     => [
             'talk_year' => [
@@ -220,7 +220,7 @@ add_action('rest_api_init', function () {
     ]);
 });
 
-function get_companies_by_type($request) {
+function miramedia_tedx_get_companies_by_type($request) {
     $company_type = $request->get_param('company_type');
     $per_page = $request->get_param('per_page') ?: 3;
 
@@ -237,6 +237,7 @@ function get_companies_by_type($request) {
 
     // Only add tax_query if a specific company type is provided
     if (!empty($company_type)) {
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $args['tax_query'] = [
             [
                 'taxonomy' => 'company_type',
@@ -267,7 +268,7 @@ function get_companies_by_type($request) {
     return rest_ensure_response($data);
 }
 
-function get_people_by_type($request) {
+function miramedia_tedx_get_people_by_type($request) {
     $person_type = $request->get_param('person_type');
     $per_page = $request->get_param('per_page') ?: 3;
 
@@ -284,6 +285,7 @@ function get_people_by_type($request) {
 
     // Only add tax_query if a specific person type is provided
     if (!empty($person_type)) {
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $args['tax_query'] = [
             [
                 'taxonomy' => 'person_type',
@@ -314,7 +316,7 @@ function get_people_by_type($request) {
     return rest_ensure_response($data);
 }
 
-function get_talks_by_year($request) {
+function miramedia_tedx_get_talks_by_year($request) {
     $talk_year = $request->get_param('talk_year');
     $per_page = $request->get_param('per_page') ?: 3;
 
@@ -331,6 +333,7 @@ function get_talks_by_year($request) {
 
     // Only add tax_query if a specific talk year is provided
     if (!empty($talk_year)) {
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $args['tax_query'] = [
             [
                 'taxonomy' => 'talk_year',

@@ -1,7 +1,7 @@
 <?php
 
 // Add block Category Miramedia
-function add_miramedia_block_category($categories, $post) {
+function miramedia_tedx_add_miramedia_block_category($categories, $post) {
     // Create the Miramedia category
     $miramedia_category = array(
         array(
@@ -14,15 +14,16 @@ function add_miramedia_block_category($categories, $post) {
     // Merge the Miramedia category to the top of the existing categories
     return array_merge($miramedia_category, $categories);
 }
-add_filter('block_categories_all', 'add_miramedia_block_category', 10, 2);
+add_filter('block_categories_all', 'miramedia_tedx_add_miramedia_block_category', 10, 2);
 
 // Block registration
-function register_custom_blocks() {
+function miramedia_tedx_register_custom_blocks() {
     wp_register_script(
         'custom-blocks',
         plugins_url('blocks/block-registration.js', __FILE__),
         array('wp-blocks', 'wp-element', 'wp-editor'),
-        file_exists(plugin_dir_path(__FILE__) . 'blocks/block-registration.js') ? filemtime(plugin_dir_path(__FILE__) . 'blocks/block-registration.js') : false
+        file_exists(plugin_dir_path(__FILE__) . 'blocks/block-registration.js') ? filemtime(plugin_dir_path(__FILE__) . 'blocks/block-registration.js') : false,
+        true // Load in footer
     );
 
     register_block_type('miramedia/people-showcase', array(
@@ -80,7 +81,7 @@ function register_custom_blocks() {
 }
 
 
-add_action('init', 'register_custom_blocks');
+add_action('init', 'miramedia_tedx_register_custom_blocks');
 
 
 // USER SIDE BLOCK CODE - display db calls
@@ -105,6 +106,7 @@ function miramedia_tedx_render_people_showcase_block($attributes) {
 
     // Only add tax_query if a specific person type is selected
     if (!empty($person_type)) {
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $query_args['tax_query'] = array(
             array(
                 'taxonomy' => 'person_type',
@@ -183,6 +185,7 @@ function miramedia_tedx_render_talks_showcase_block($attributes) {
         'post_type' => 'talk',
         'posts_per_page' => intval($per_page),
         'orderby' => $random_order ? 'rand' : 'date',
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
         'meta_query' => array(
             array(
                 'key'     => '_thumbnail_id',
@@ -193,6 +196,7 @@ function miramedia_tedx_render_talks_showcase_block($attributes) {
 
     // Only add tax_query if a specific year is selected
     if (!empty($talk_year)) {
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $query_args['tax_query'] = array(
             array(
                 'taxonomy' => 'talk_year',
@@ -286,6 +290,7 @@ function miramedia_tedx_render_companies_showcase_block($attributes) {
 
     // Only add tax_query if a specific company type is selected
     if (!empty($company_type)) {
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $query_args['tax_query'] = array(
             array(
                 'taxonomy' => 'company_type',
