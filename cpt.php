@@ -1,17 +1,19 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 // Register custom taxonomies
-function miramedia_tedx_register_taxonomies() {
+function mmevmt_register_taxonomies() {
 
 // Register post meta for Person Type
-register_post_meta('person', 'person_type', array(
+register_post_meta('mmevmt_person', 'mmevmt_person_type', array(
     'show_in_rest'  => true, // Enables REST API access
     'single'        => true,  // Stores a single value per post
     'type'          => 'string', // Ensures stored data is a string
 ));
 
 // Register taxonomy for Person Type
-register_taxonomy('person_type', 'person', array(
+register_taxonomy('mmevmt_person_type', 'mmevmt_person', array(
     'labels' => array(
         'name' => 'Person Types',
         'singular_name' => 'Person Type'
@@ -21,14 +23,14 @@ register_taxonomy('person_type', 'person', array(
 ));
 
 // Register post meta for Company Type
-register_post_meta('company', 'company_type', array(
+register_post_meta('mmevmt_company', 'mmevmt_company_type', array(
     'show_in_rest'  => true,
     'single'        => true,
     'type'          => 'string',
 ));
 
 // Register taxonomy for Company Type
-register_taxonomy('company_type', 'company', array(
+register_taxonomy('mmevmt_company_type', 'mmevmt_company', array(
     'labels' => array(
         'name' => 'Company Types',
         'singular_name' => 'Company Type'
@@ -37,18 +39,18 @@ register_taxonomy('company_type', 'company', array(
     'public' => true,
     'show_ui' => true,
     'show_in_rest' => true,
-    'rest_base' => 'company_type',
+    'rest_base' => 'mmevmt_company_type',
     'rest_controller_class' => 'WP_REST_Terms_Controller'
 ));
 
 
-    register_post_meta('talk', 'talk_year', array(
+    register_post_meta('mmevmt_talk', 'mmevmt_talk_year', array(
     'show_in_rest'  => true, // Enables REST API access
     'single'        => true,  // Stores a single value per post
     'type'          => 'string', // Ensures stored data is a string
     ));
-    
-    register_taxonomy('talk_year', 'talk', array(
+
+    register_taxonomy('mmevmt_talk_year', 'mmevmt_talk', array(
         'labels' => array(
             'name' => 'Talk Years',
             'singular_name' => 'Talk Year'
@@ -58,7 +60,7 @@ register_taxonomy('company_type', 'company', array(
     ));
 
     // Register post meta for talk_year
-    register_post_meta('talk', 'talk_year', array(
+    register_post_meta('mmevmt_talk', 'mmevmt_talk_year', array(
         'show_in_rest'  => true, // Enables REST API access
         'single'        => true,  // Stores a single value per post
         'type'          => 'string', // Ensures stored data is a string
@@ -66,7 +68,7 @@ register_taxonomy('company_type', 'company', array(
 
 
     // Register non-hierarchical taxonomy: Tags (like post tags)
-    register_taxonomy('tags', 'talk', array(
+    register_taxonomy('mmevmt_tags', 'mmevmt_talk', array(
         'labels' => array(
             'name' => 'Tags',
             'singular_name' => 'Tag'
@@ -76,7 +78,7 @@ register_taxonomy('company_type', 'company', array(
     ));
 
     // Register hierarchical taxonomy: Topic (acts like categories)
-    register_taxonomy('topic', 'talk', array(
+    register_taxonomy('mmevmt_topic', 'mmevmt_talk', array(
         'labels' => array(
             'name' => 'Topics',
             'singular_name' => 'Topic'
@@ -88,19 +90,19 @@ register_taxonomy('company_type', 'company', array(
 
 
 }
-add_action('init', 'miramedia_tedx_register_taxonomies');
+add_action('init', 'mmevmt_register_taxonomies');
 
 // Add REST API support for taxonomy filtering
-function miramedia_tedx_add_rest_taxonomy_filter() {
+function mmevmt_add_rest_taxonomy_filter() {
     // Register company_type filter for company post type
-    add_filter('rest_company_query', function($args, $request) {
-        if (isset($request['company_type'])) {
+    add_filter('rest_mmevmt_company_query', function($args, $request) {
+        if (isset($request['mmevmt_company_type'])) {
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
             $args['tax_query'] = array(
                 array(
-                    'taxonomy' => 'company_type',
+                    'taxonomy' => 'mmevmt_company_type',
                     'field' => 'term_id',
-                    'terms' => $request['company_type'],
+                    'terms' => $request['mmevmt_company_type'],
                 )
             );
         }
@@ -108,14 +110,14 @@ function miramedia_tedx_add_rest_taxonomy_filter() {
     }, 10, 2);
 
     // Register person_type filter for person post type
-    add_filter('rest_person_query', function($args, $request) {
-        if (isset($request['person_type'])) {
+    add_filter('rest_mmevmt_person_query', function($args, $request) {
+        if (isset($request['mmevmt_person_type'])) {
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
             $args['tax_query'] = array(
                 array(
-                    'taxonomy' => 'person_type',
+                    'taxonomy' => 'mmevmt_person_type',
                     'field' => 'term_id',
-                    'terms' => $request['person_type'],
+                    'terms' => $request['mmevmt_person_type'],
                 )
             );
         }
@@ -123,33 +125,41 @@ function miramedia_tedx_add_rest_taxonomy_filter() {
     }, 10, 2);
 
     // Register talk_year filter for talk post type
-    add_filter('rest_talk_query', function($args, $request) {
-        if (isset($request['talk_year'])) {
+    add_filter('rest_mmevmt_talk_query', function($args, $request) {
+        if (isset($request['mmevmt_talk_year'])) {
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
             $args['tax_query'] = array(
                 array(
-                    'taxonomy' => 'talk_year',
+                    'taxonomy' => 'mmevmt_talk_year',
                     'field' => 'term_id',
-                    'terms' => $request['talk_year'],
+                    'terms' => $request['mmevmt_talk_year'],
                 )
             );
         }
         return $args;
     }, 10, 2);
 }
-add_action('rest_api_init', 'miramedia_tedx_add_rest_taxonomy_filter');
+add_action('rest_api_init', 'mmevmt_add_rest_taxonomy_filter');
 // Register custom post types
-function miramedia_tedx_register_custom_post_types() {
-    miramedia_tedx_register_custom_post_types_people();
-    miramedia_tedx_register_custom_post_types_company();
-    miramedia_tedx_register_custom_post_types_talks();
+function mmevmt_register_custom_post_types() {
+    mmevmt_register_custom_post_types_people();
+    mmevmt_register_custom_post_types_company();
+    mmevmt_register_custom_post_types_talks();
 }
-add_action('init', 'miramedia_tedx_register_custom_post_types');
+add_action('init', 'mmevmt_register_custom_post_types');
 
-function miramedia_tedx_register_custom_post_types_people () {
+// Convert a YouTube watch/share/shorts URL (youtube.com/watch?v=, youtu.be/, /shorts/, etc.) into an embeddable URL
+function mmevmt_get_youtube_embed_url($url) {
+    if (preg_match('#(?:youtube(?:-nocookie)?\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)([A-Za-z0-9_-]{11})#i', $url, $matches)) {
+        return 'https://www.youtube.com/embed/' . $matches[1];
+    }
+    return '';
+}
+
+function mmevmt_register_custom_post_types_people () {
 
     // People CPT
-    register_post_type('person', array(
+    register_post_type('mmevmt_person', array(
         'labels' => array(
             'name' => 'People',
             'singular_name' => 'Person',
@@ -183,15 +193,15 @@ function miramedia_tedx_register_custom_post_types_people () {
         'menu_icon' => 'dashicons-admin-users',
         'has_archive' => true,
         'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'), // 'thumbnail' for featured image
-        'taxonomies' => array('person_type'),
+        'taxonomies' => array('mmevmt_person_type'),
         'show_in_rest' => true,
-        'rest_base' => 'person',
+        'rest_base' => 'mmevmt_person',
         'rest_controller_class' => 'WP_REST_Posts_Controller',
         'register_meta_box_cb' => function() {
-            add_meta_box('person_meta_box', 'Person Details', function($post) {
+            add_meta_box('mmevmt_person_meta_box', 'Person Details', function($post) {
             $meta = get_post_meta($post->ID);
             ?>
-            <?php wp_nonce_field('person_meta_nonce_action', 'person_meta_nonce'); ?>
+            <?php wp_nonce_field('mmevmt_person_meta_nonce_action', 'mmevmt_person_meta_nonce'); ?>
             <p>
                 <label for="company_name">Company Name:</label><br>
                 <input type="text" id="company_name" name="company_name" value="<?php echo esc_attr($meta['company_name'][0] ?? ''); ?>" style="width: 100%;">
@@ -218,14 +228,14 @@ function miramedia_tedx_register_custom_post_types_people () {
             </p>
 
             <?php
-            }, 'person', 'normal', 'high');
+            }, 'mmevmt_person', 'normal', 'high');
         }
     ));
 
     // Save custom fields
-    add_action('save_post_person', function($post_id) {
+    add_action('save_post_mmevmt_person', function($post_id) {
         // Verify nonce for security
-        if (!isset($_POST['person_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['person_meta_nonce'])), 'person_meta_nonce_action')) {
+        if (!isset($_POST['mmevmt_person_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mmevmt_person_meta_nonce'])), 'mmevmt_person_meta_nonce_action')) {
             return;
         }
         
@@ -247,12 +257,64 @@ function miramedia_tedx_register_custom_post_types_people () {
             update_post_meta($post_id, 'social_links', sanitize_textarea_field(wp_unslash($_POST['social_links'])));
         }
     });
+
+    // Display social links below the featured image on the single Person page
+    add_filter('the_content', function($content) {
+        if (is_singular('mmevmt_person') && in_the_loop() && is_main_query()) {
+            $social_links = get_post_meta(get_the_ID(), 'social_links', true);
+            $social_links = json_decode($social_links, true);
+
+            if (!empty($social_links)) {
+                $links_html = '<div class="social-links person-social-links">';
+                foreach ($social_links as $platform => $link) {
+                    if (!empty($link)) {
+                        $links_html .= '<a href="' . esc_url($link) . '" target="_blank" rel="noopener noreferrer">' . esc_html(ucfirst($platform)) . '</a>';
+                    }
+                }
+                $links_html .= '</div>';
+
+                $content = $links_html . $content;
+            }
+
+            // Embed YouTube videos for talks linked to this person at the bottom of the page
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+            $talks = get_posts(array(
+                'post_type' => 'mmevmt_talk',
+                'posts_per_page' => -1,
+                'meta_key' => 'person_link',
+                'meta_value' => get_the_ID(),
+                'orderby' => 'title',
+                'order' => 'ASC',
+            ));
+
+            $videos_html = '';
+            foreach ($talks as $talk) {
+                $youtube_link = get_post_meta($talk->ID, 'youtube_link', true);
+                $embed_url = $youtube_link ? mmevmt_get_youtube_embed_url($youtube_link) : '';
+
+                if ($embed_url) {
+                    $videos_html .= '<div class="person-talk-video">';
+                    $videos_html .= '<div class="person-talk-video-frame">';
+                    $videos_html .= '<iframe src="' . esc_url($embed_url) . '" title="' . esc_attr($talk->post_title) . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+                    $videos_html .= '</div>';
+                    $videos_html .= '<p class="person-talk-title">' . esc_html($talk->post_title) . '</p>';
+                    $videos_html .= '</div>';
+                }
+            }
+
+            if (!empty($videos_html)) {
+                $content .= '<div class="person-talks"><h3>' . esc_html(mmevmt_get_label('talks_heading')) . '</h3><div class="person-talks-list">' . $videos_html . '</div></div>';
+            }
+        }
+
+        return $content;
+    });
 }
 
-function miramedia_tedx_register_custom_post_types_company() {
+function mmevmt_register_custom_post_types_company() {
 
     // Company CPT
-    register_post_type('company', array(
+    register_post_type('mmevmt_company', array(
         'labels' => array(
             'name' => 'Companies',
             'singular_name' => 'Company',
@@ -277,15 +339,15 @@ function miramedia_tedx_register_custom_post_types_company() {
         'menu_icon' => 'dashicons-building',
         'has_archive' => true,
         'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'),
-        'taxonomies' => array('company_type'), // Updated taxonomy to 'company_type'
+        'taxonomies' => array('mmevmt_company_type'), // Updated taxonomy to 'mmevmt_company_type'
         'show_in_rest' => true,
-        'rest_base' => 'company',
+        'rest_base' => 'mmevmt_company',
         'rest_controller_class' => 'WP_REST_Posts_Controller',
         'register_meta_box_cb' => function() {
-            add_meta_box('company_meta_box', 'Company Details', function($post) {
+            add_meta_box('mmevmt_company_meta_box', 'Company Details', function($post) {
                 $meta = get_post_meta($post->ID);
                 ?>
-                <?php wp_nonce_field('company_meta_nonce_action', 'company_meta_nonce'); ?>
+                <?php wp_nonce_field('mmevmt_company_meta_nonce_action', 'mmevmt_company_meta_nonce'); ?>
                 <p>
                     <label for="company_name">Company Name:</label><br>
                     <input type="text" id="company_name" name="company_name" value="<?php echo esc_attr($meta['company_name'][0] ?? ''); ?>" style="width: 100%;">
@@ -307,14 +369,14 @@ function miramedia_tedx_register_custom_post_types_company() {
                     <input type="text" id="telephone_number" name="telephone_number" value="<?php echo esc_attr($meta['telephone_number'][0] ?? ''); ?>" style="width: 100%;">
                 </p>
                 <?php
-            }, 'company', 'normal', 'high');
+            }, 'mmevmt_company', 'normal', 'high');
         }
     ));
 
     // Save custom fields
-    add_action('save_post_company', function($post_id) {
+    add_action('save_post_mmevmt_company', function($post_id) {
         // Verify nonce for security
-        if (!isset($_POST['company_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['company_meta_nonce'])), 'company_meta_nonce_action')) {
+        if (!isset($_POST['mmevmt_company_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mmevmt_company_meta_nonce'])), 'mmevmt_company_meta_nonce_action')) {
             return;
         }
         
@@ -341,10 +403,10 @@ function miramedia_tedx_register_custom_post_types_company() {
     });
 }
 
-function miramedia_tedx_register_custom_post_types_talks() {
+function mmevmt_register_custom_post_types_talks() {
 
     // Talks CPT
-    register_post_type('talk', array(
+    register_post_type('mmevmt_talk', array(
         'labels' => array(
             'name' => 'Talks',
             'singular_name' => 'Talk',
@@ -370,23 +432,23 @@ function miramedia_tedx_register_custom_post_types_talks() {
         'has_archive' => true,
         'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'),
         'rewrite'           => array('slug' => 'talk', 'with_front' => false),
-        'taxonomies' => array('talk_year'), // Use 'talk_year' taxonomy
+        'taxonomies' => array('mmevmt_talk_year'), // Use 'mmevmt_talk_year' taxonomy
         'show_in_rest' => true,
-        'rest_base' => 'talk',
+        'rest_base' => 'mmevmt_talk',
         'rest_controller_class' => 'WP_REST_Posts_Controller',
         'register_meta_box_cb' => function() {
-            add_meta_box('talk_meta_box', 'Talk Details', function($post) {
+            add_meta_box('mmevmt_talk_meta_box', 'Talk Details', function($post) {
                 $meta = get_post_meta($post->ID);
                 // Get all people for dropdown
                 $people = get_posts(array(
-                    'post_type' => 'person',
+                    'post_type' => 'mmevmt_person',
                     'posts_per_page' => -1,
                     'orderby' => 'title',
                     'order' => 'ASC'
                 ));
                 $selected_person = $meta['person_link'][0] ?? '';
                 ?>
-                <?php wp_nonce_field('talk_meta_nonce_action', 'talk_meta_nonce'); ?>
+                <?php wp_nonce_field('mmevmt_talk_meta_nonce_action', 'mmevmt_talk_meta_nonce'); ?>
                 <p>
                     <label for="youtube_link">YouTube Link:</label>Add here to overwrite call to /talk and link to video<br>
                     <input type="url" id="youtube_link" name="youtube_link" value="<?php echo esc_attr($meta['youtube_link'][0] ?? ''); ?>" style="width: 100%;" placeholder="https://www.youtube.com/">
@@ -403,14 +465,14 @@ function miramedia_tedx_register_custom_post_types_talks() {
                     </select>
                 </p>
                 <?php
-            }, 'talk', 'normal', 'high');
+            }, 'mmevmt_talk', 'normal', 'high');
         }
     ));
 
     // Save custom fields
-    add_action('save_post_talk', function($post_id) {
+    add_action('save_post_mmevmt_talk', function($post_id) {
         // Verify nonce for security
-        if (!isset($_POST['talk_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['talk_meta_nonce'])), 'talk_meta_nonce_action')) {
+        if (!isset($_POST['mmevmt_talk_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mmevmt_talk_meta_nonce'])), 'mmevmt_talk_meta_nonce_action')) {
             return;
         }
         

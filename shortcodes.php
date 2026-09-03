@@ -1,5 +1,8 @@
 <?php
-function miramedia_tedx_youtube_shortcode($atts) {
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+function mmevmt_youtube_shortcode($atts) {
     $youtube_link = get_post_meta(get_the_ID(), 'youtube_link', true);
     $output = '<!-- Must be the list page - No YouTube link found. -->';
 
@@ -22,12 +25,12 @@ function miramedia_tedx_youtube_shortcode($atts) {
         $output .= '</div>';
     }
 
-    return $output;    
+    return $output;
 }
-add_shortcode('tedx_youtube', 'miramedia_tedx_youtube_shortcode');
+add_shortcode('mmevmt_youtube', 'mmevmt_youtube_shortcode');
 
 
-function miramedia_tedx_speaker_shortcode($atts) {
+function mmevmt_speaker_shortcode($atts) {
     // Get the current talk post ID
     $talk_post_id = get_the_ID();
 
@@ -35,7 +38,7 @@ function miramedia_tedx_speaker_shortcode($atts) {
     $person_link = get_post_meta($talk_post_id, 'person_link', true);
 
     // Try to get speaker info from person_link if it's a valid post ID
-    if (!empty($person_link) && is_numeric($person_link) && get_post_status($person_link)) {
+    if (!empty($person_link) && is_numeric($person_link) && get_post_status($person_link) && get_post_type($person_link) === 'mmevmt_person') {
         $speaker_name = get_the_title($person_link);
         $company_name = get_post_meta($person_link, 'company_name', true);
         $job_title = get_post_meta($person_link, 'job_title', true);
@@ -53,7 +56,7 @@ function miramedia_tedx_speaker_shortcode($atts) {
     $output = '<div class="tedx-speaker" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; width: 100%;">';
 
     // Add SPEAKER title
-    $output .= '<h3 style="margin-bottom: 8px;">SPEAKER:</h3>';
+    $output .= '<h3 style="margin-bottom: 8px;">' . esc_html(mmevmt_get_label('speaker_heading')) . '</h3>';
 
     // Link to the details page
     $person_url = get_permalink($person_link);
@@ -79,7 +82,7 @@ function miramedia_tedx_speaker_shortcode($atts) {
 
     return $output;
 }
-add_shortcode('tedx_speaker', 'miramedia_tedx_speaker_shortcode');
+add_shortcode('mmevmt_speaker', 'mmevmt_speaker_shortcode');
 
 
 ?>

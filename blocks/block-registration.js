@@ -1,13 +1,13 @@
-// Add the new custom category - Miramedia
+// Add the new custom category - TEDx Event Manager
 wp.hooks.addFilter(
 	'blocks.registerBlockType',
-	'miramedia/add-custom-category',
+	'mmevmt/add-custom-category',
     function (settings) {
-        if (!wp.blocks.getCategories().some(category => category.slug === 'miramedia')) {
+        if (!wp.blocks.getCategories().some(category => category.slug === 'mmevmt')) {
             wp.blocks.updateCategories(
                 wp.blocks.getCategories().concat({
-                    slug: 'miramedia',
-                    title: 'Miramedia',
+                    slug: 'mmevmt',
+                    title: 'TEDx Event Manager',
                     icon: 'dashicons-superhero' // Replace with any Dashicon.
                 })
             );
@@ -21,10 +21,10 @@ wp.hooks.addFilter(
 const { createElement } = wp.element;
 
 // Register People Showcase Block
-wp.blocks.registerBlockType('miramedia/people-showcase', {
+wp.blocks.registerBlockType('mmevmt/people-showcase', {
     title: 'People Showcase',
     icon: 'groups',
-    category: 'miramedia',
+    category: 'mmevmt',
     attributes: {
         person_type: {
             type: 'string',
@@ -61,8 +61,8 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
         }, []);
 
         useEffect(() => {
-            // Fetch person types from REST API for taxonomy 'person_type'
-            wp.apiFetch({ path: '/wp/v2/person_type?per_page=100' })
+            // Fetch person types from REST API for taxonomy 'mmevmt_person_type'
+            wp.apiFetch({ path: '/wp/v2/mmevmt_person_type?per_page=100' })
                 .then((data) => {
                     const options = data.map(term => ({
                         label: term.name,
@@ -92,8 +92,8 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
                 // Find the ID for the selected slug
                 const selectedType = person_types.find(type => type.value === attributes.person_type);
                 if (selectedType && selectedType.id) {
-                    // Fetch people filtered by type using the people-filtered endpoint
-                    const apiPath = '/wp/v2/people-filtered?person_type=' + selectedType.id + '&per_page=' + perPageParam;
+                    // Fetch people filtered by type using the mmevmt-people-filtered endpoint
+                    const apiPath = '/wp/v2/mmevmt-people-filtered?mmevmt_person_type=' + selectedType.id + '&per_page=' + perPageParam;
                     wp.apiFetch({ path: apiPath })
                         .then((data) => {
                             setPeople(data);
@@ -109,8 +109,8 @@ wp.blocks.registerBlockType('miramedia/people-showcase', {
                     setLoadingPeople(false);
                 }
             } else {
-                // Fetch all people using the people-filtered endpoint
-                wp.apiFetch({ path: '/wp/v2/people-filtered?per_page=' + perPageParam })
+                // Fetch all people using the mmevmt-people-filtered endpoint
+                wp.apiFetch({ path: '/wp/v2/mmevmt-people-filtered?per_page=' + perPageParam })
                     .then((data) => {
                         setPeople(data);
                         setLoadingPeople(false);
@@ -281,10 +281,10 @@ const { useState, useEffect } = wp.element;
 const { SelectControl } = wp.components;
 const { useBlockProps } = wp.blockEditor;
 
-wp.blocks.registerBlockType('miramedia/talks-showcase', {
+wp.blocks.registerBlockType('mmevmt/talks-showcase', {
     title: 'Talks Showcase',
     icon: 'admin-comments',
-    category: 'miramedia',
+    category: 'mmevmt',
     attributes: {
         year: {
             type: 'string',
@@ -321,8 +321,8 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
         }, []);
 
         useEffect(() => {
-            // Fetch years from REST API for taxonomy 'talk_year'
-            wp.apiFetch({ path: '/wp/v2/talk_year?per_page=100' })
+            // Fetch years from REST API for taxonomy 'mmevmt_talk_year'
+            wp.apiFetch({ path: '/wp/v2/mmevmt_talk_year?per_page=100' })
                 .then((data) => {
                     const options = data.map(term => ({
                         label: term.name,
@@ -352,8 +352,8 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
                 // Find the ID for the selected slug
                 const selectedYear = years.find(y => y.value === attributes.year);
                 if (selectedYear && selectedYear.id) {
-                    // Fetch talks filtered by year using the talks-filtered endpoint
-                    const apiPath = '/wp/v2/talks-filtered?talk_year=' + selectedYear.id + '&per_page=' + perPageParam;
+                    // Fetch talks filtered by year using the mmevmt-talks-filtered endpoint
+                    const apiPath = '/wp/v2/mmevmt-talks-filtered?mmevmt_talk_year=' + selectedYear.id + '&per_page=' + perPageParam;
                     console.log('Fetching talks with path:', apiPath);
                     wp.apiFetch({ path: apiPath })
                         .then((data) => {
@@ -372,9 +372,9 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
                     setLoadingTalks(false);
                 }
             } else {
-                // Fetch all talks using the talks-filtered endpoint
+                // Fetch all talks using the mmevmt-talks-filtered endpoint
                 console.log('Fetching all talks');
-                wp.apiFetch({ path: '/wp/v2/talks-filtered?per_page=' + perPageParam })
+                wp.apiFetch({ path: '/wp/v2/mmevmt-talks-filtered?per_page=' + perPageParam })
                     .then((data) => {
                         console.log('All talks received:', data);
                         setTalks(data);
@@ -542,10 +542,10 @@ wp.blocks.registerBlockType('miramedia/talks-showcase', {
 });
 const { TextControl } = wp.components;
 
-wp.blocks.registerBlockType('miramedia/companies-showcase', {
+wp.blocks.registerBlockType('mmevmt/companies-showcase', {
     title: 'Companies Showcase',
     icon: 'building',
-    category: 'miramedia',
+    category: 'mmevmt',
     attributes: {
         company_type: {
             type: 'string',
@@ -586,8 +586,8 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
         }, []);
 
         useEffect(() => {
-            // Fetch company types from REST API for taxonomy 'company_type'
-            wp.apiFetch({ path: '/wp/v2/company_type?per_page=100' })
+            // Fetch company types from REST API for taxonomy 'mmevmt_company_type'
+            wp.apiFetch({ path: '/wp/v2/mmevmt_company_type?per_page=100' })
                 .then((data) => {
                     const options = data.map(term => ({
                         label: term.name,
@@ -622,8 +622,8 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
                 // Find the ID for the selected slug
                 const selectedType = company_types.find(type => type.value === attributes.company_type);
                 if (selectedType && selectedType.id) {
-                    // Fetch companies filtered by type using the companies-filtered endpoint
-                    const apiPath = '/wp/v2/companies-filtered?company_type=' + selectedType.id + '&per_page=' + perPageParam;
+                    // Fetch companies filtered by type using the mmevmt-companies-filtered endpoint
+                    const apiPath = '/wp/v2/mmevmt-companies-filtered?mmevmt_company_type=' + selectedType.id + '&per_page=' + perPageParam;
                     console.log('Fetching companies with path:', apiPath);
                     wp.apiFetch({ path: apiPath })
                         .then((data) => {
@@ -642,8 +642,8 @@ wp.blocks.registerBlockType('miramedia/companies-showcase', {
                     setLoadingCompanies(false);
                 }
             } else {
-                // Fetch all companies using the companies-filtered endpoint
-                wp.apiFetch({ path: '/wp/v2/companies-filtered?per_page=' + perPageParam })
+                // Fetch all companies using the mmevmt-companies-filtered endpoint
+                wp.apiFetch({ path: '/wp/v2/mmevmt-companies-filtered?per_page=' + perPageParam })
                     .then((data) => {
                         setCompanies(data);
                         setLoadingCompanies(false);

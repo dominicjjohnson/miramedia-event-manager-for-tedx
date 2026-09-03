@@ -2,12 +2,19 @@
 /**
  * Plugin Name: Miramedia Event Manager for TEDx
  * Description: Comprehensive event management plugin for TEDx organizers. Manage talks, speakers, and sponsor companies with custom Gutenberg blocks and advanced filtering options.
- * Version: 1.3
+ * Version: 1.6
  * Author: Dominic Johnson / Miramedia
  * Author URI: https://miramedia.co.uk
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: tedx-event-manager
+ * Text Domain: miramedia-event-manager-for-tedx
+ *
+ * Changelog:
+ * 1.4 - Amends based on an email 8th December 2025. Added ABSPATH security checks to all PHP files.
+ * 1.5 - Tested to v 6.9
+ * 1.6 - Person page: show social links below the photo and embed linked talks'
+ *       YouTube videos at the bottom. Added Settings > TEDx Event Manager page
+ *       for editable text labels. Talks can now be linked to Mira Events.
  */
 
 // Exit if accessed directly.
@@ -16,35 +23,36 @@ if (!defined('ABSPATH')) {
 }
 
 // Include CPT file
+require_once plugin_dir_path(__FILE__) . 'settings.php';
 require_once plugin_dir_path(__FILE__) . 'cpt.php';
 require_once plugin_dir_path(__FILE__) . 'api.php';
 require_once plugin_dir_path(__FILE__) . 'blocks.php';
 require_once plugin_dir_path(__FILE__) . 'shortcodes.php';
 
 // Define a constant for development mode.
-if (!defined('MIRAMEDIA_TEDX_DEV_MODE')) {
-    define('MIRAMEDIA_TEDX_DEV_MODE', true); // Set to false in production.
+if (!defined('MMEVMT_DEV_MODE')) {
+    define('MMEVMT_DEV_MODE', true); // Set to false in production.
 }
 
 
-function miramedia_tedx_enqueue_styles() {
+function mmevmt_enqueue_styles() {
     // Use time() to ensure cache busting on every page load.
     $version = time();
 
     // Enqueue the single CSS file.
     wp_enqueue_style(
-        'miramedia-tedx-plugin-style',
+        'mmevmt-plugin-style',
         plugins_url('/assets/style.css', __FILE__), // Path to your style.css file.
         array(), // Dependencies (none in this case).
         $version // Forces browser to re-fetch the latest file.
     );
 }
-add_action('wp_enqueue_scripts', 'miramedia_tedx_enqueue_styles');
+add_action('wp_enqueue_scripts', 'mmevmt_enqueue_styles');
 
 
 
 // Disable comments and trackbacks - need to put this into an option Y/N
-function miramedia_tedx_disable_comments() {
+function mmevmt_disable_comments() {
     // Disable support for comments and trackbacks in post types
     $post_types = get_post_types();
     foreach ($post_types as $post_type) {
@@ -84,13 +92,13 @@ function miramedia_tedx_disable_comments() {
 }
 
 // Hook into WordPress initialization
-add_action('init', 'miramedia_tedx_disable_comments');
+add_action('init', 'mmevmt_disable_comments');
 
 // Disable Gutenberg for specific post types
-function miramedia_tedx_disable_gutenberg($use_block_editor, $post_type) {
-    if (in_array($post_type, ['talk', 'company', 'person'])) {
+function mmevmt_disable_gutenberg($use_block_editor, $post_type) {
+    if (in_array($post_type, ['mmevmt_talk', 'mmevmt_company', 'mmevmt_person'])) {
         return false; // Disable Gutenberg
     }
     return $use_block_editor;
 }
-add_filter('use_block_editor_for_post_type', 'miramedia_tedx_disable_gutenberg', 10, 2);
+add_filter('use_block_editor_for_post_type', 'mmevmt_disable_gutenberg', 10, 2);

@@ -1,34 +1,36 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 // Add block Category Miramedia
-function miramedia_tedx_add_miramedia_block_category($categories, $post) {
+function mmevmt_add_block_category($categories, $post) {
     // Create the Miramedia category
     $miramedia_category = array(
         array(
-            'slug' => 'miramedia',
-            'title' => 'Miramedia',
+            'slug' => 'mmevmt',
+            'title' => 'TEDx Event Manager',
             'icon'  => 'admin-site', // Optional Dashicon
         ),
     );
 
-    // Merge the Miramedia category to the top of the existing categories
+    // Merge the category to the top of the existing categories
     return array_merge($miramedia_category, $categories);
 }
-add_filter('block_categories_all', 'miramedia_tedx_add_miramedia_block_category', 10, 2);
+add_filter('block_categories_all', 'mmevmt_add_block_category', 10, 2);
 
 // Block registration
-function miramedia_tedx_register_custom_blocks() {
+function mmevmt_register_custom_blocks() {
     wp_register_script(
-        'custom-blocks',
+        'mmevmt-blocks',
         plugins_url('blocks/block-registration.js', __FILE__),
         array('wp-blocks', 'wp-element', 'wp-editor'),
         file_exists(plugin_dir_path(__FILE__) . 'blocks/block-registration.js') ? filemtime(plugin_dir_path(__FILE__) . 'blocks/block-registration.js') : false,
         true // Load in footer
     );
 
-    register_block_type('miramedia/people-showcase', array(
-        'editor_script' => 'custom-blocks',
-        'render_callback' => 'miramedia_tedx_render_people_showcase_block', // Server-side rendering for the block.
+    register_block_type('mmevmt/people-showcase', array(
+        'editor_script' => 'mmevmt-blocks',
+        'render_callback' => 'mmevmt_render_people_showcase_block', // Server-side rendering for the block.
         'attributes' => array(
             'personType' => array(
                 'type' => 'string',
@@ -44,9 +46,9 @@ function miramedia_tedx_register_custom_blocks() {
         ),
     ));
 
-    register_block_type('miramedia/talks-showcase', array(
-        'editor_script' => 'custom-blocks',
-        'render_callback' => 'miramedia_tedx_render_talks_showcase_block', // Server-side rendering for the block.
+    register_block_type('mmevmt/talks-showcase', array(
+        'editor_script' => 'mmevmt-blocks',
+        'render_callback' => 'mmevmt_render_talks_showcase_block', // Server-side rendering for the block.
         'attributes' => array(
             'year' => array(
             'type' => 'string',
@@ -61,9 +63,9 @@ function miramedia_tedx_register_custom_blocks() {
         ),
     ));
 
-    register_block_type('miramedia/companies-showcase', array(
-        'editor_script' => 'custom-blocks',
-        'render_callback' => 'miramedia_tedx_render_companies_showcase_block', // Server-side rendering for the block.
+    register_block_type('mmevmt/companies-showcase', array(
+        'editor_script' => 'mmevmt-blocks',
+        'render_callback' => 'mmevmt_render_companies_showcase_block', // Server-side rendering for the block.
         'attributes' => array(
             'numberOfCompanies' => array(
                 'type' => 'number',
@@ -81,12 +83,12 @@ function miramedia_tedx_register_custom_blocks() {
 }
 
 
-add_action('init', 'miramedia_tedx_register_custom_blocks');
+add_action('init', 'mmevmt_register_custom_blocks');
 
 
 // USER SIDE BLOCK CODE - display db calls
 
-function miramedia_tedx_render_people_showcase_block($attributes) {
+function mmevmt_render_people_showcase_block($attributes) {
 
     //$person_type = is_front_page() ? 'team' : 'team';
     $person_type = isset($attributes['person_type']) ? esc_html($attributes['person_type']) : '';
@@ -99,7 +101,7 @@ function miramedia_tedx_render_people_showcase_block($attributes) {
     }
 
     $query_args = [
-        'post_type' => 'person',
+        'post_type' => 'mmevmt_person',
         'posts_per_page' => intval($per_page),
         'orderby' => $random_order ? 'rand' : 'title',
     ];
@@ -109,7 +111,7 @@ function miramedia_tedx_render_people_showcase_block($attributes) {
         // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $query_args['tax_query'] = array(
             array(
-                'taxonomy' => 'person_type',
+                'taxonomy' => 'mmevmt_person_type',
                 'field'    => 'slug',
                 'terms'    => $person_type,
             ),
@@ -119,7 +121,7 @@ function miramedia_tedx_render_people_showcase_block($attributes) {
     $query = new WP_Query($query_args);
 
     if (!$query->have_posts()) {
-        return '<p>No People found.</p>';
+        return '<p>' . esc_html(mmevmt_get_label('no_people_message')) . '</p>';
     }
 
     $output = '<div class="people-showcase">'; // Grid container starts
@@ -166,7 +168,7 @@ function miramedia_tedx_render_people_showcase_block($attributes) {
     return $output;
 }
 
-function miramedia_tedx_render_talks_showcase_block($attributes) {
+function mmevmt_render_talks_showcase_block($attributes) {
 
     // Set a flag for now to switch between linking to YouTube or the talk post
     $link_to_youtube = isset($attributes['linkToYoutube']) ? (bool) $attributes['linkToYoutube'] : false;
@@ -182,7 +184,7 @@ function miramedia_tedx_render_talks_showcase_block($attributes) {
     }
 
     $query_args = [
-        'post_type' => 'talk',
+        'post_type' => 'mmevmt_talk',
         'posts_per_page' => intval($per_page),
         'orderby' => $random_order ? 'rand' : 'date',
         // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
@@ -199,7 +201,7 @@ function miramedia_tedx_render_talks_showcase_block($attributes) {
         // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $query_args['tax_query'] = array(
             array(
-                'taxonomy' => 'talk_year',
+                'taxonomy' => 'mmevmt_talk_year',
                 'field'    => 'slug',
                 'terms'    => $talk_year,
             ),
@@ -209,8 +211,9 @@ function miramedia_tedx_render_talks_showcase_block($attributes) {
     $query = new WP_Query($query_args);
 
     if (!$query->have_posts()) {
-        $message = empty($talk_year) ? 'No talks found.' : 'No talks found for year: ' . $talk_year . '.';
-        return '<p>' . $message . '</p>';
+        $base_message = mmevmt_get_label('no_talks_message');
+        $message = empty($talk_year) ? $base_message : rtrim($base_message, '.') . ' for year: ' . $talk_year . '.';
+        return '<p>' . esc_html($message) . '</p>';
     }
 
     $output = '<div class="talks-showcase">'; // Grid container starts
@@ -250,7 +253,7 @@ function miramedia_tedx_render_talks_showcase_block($attributes) {
             $people_links = array();
             foreach ($linked_people as $person_id) {
             $person_id = intval($person_id);
-            if ($person_id && get_post_type($person_id) === 'person') {
+            if ($person_id && get_post_type($person_id) === 'mmevmt_person') {
                 $person_name = get_the_title($person_id);
                 $person_link = get_permalink($person_id);
                 $people_links[] = '<a href="' . esc_url($person_link) . '">' . esc_html($person_name) . '</a>';
@@ -269,7 +272,7 @@ function miramedia_tedx_render_talks_showcase_block($attributes) {
     return $output;
 }
 
-function miramedia_tedx_render_companies_showcase_block($attributes) {
+function mmevmt_render_companies_showcase_block($attributes) {
 
     //$company_type = is_front_page() ? 'volunteer' : 'partners';
 
@@ -283,7 +286,7 @@ function miramedia_tedx_render_companies_showcase_block($attributes) {
     }
 
     $query_args = [
-        'post_type' => 'company',
+        'post_type' => 'mmevmt_company',
         'posts_per_page' => intval($per_page),
         'orderby' => $random_order ? 'rand' : 'title',
     ];
@@ -293,7 +296,7 @@ function miramedia_tedx_render_companies_showcase_block($attributes) {
         // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
         $query_args['tax_query'] = array(
             array(
-                'taxonomy' => 'company_type',
+                'taxonomy' => 'mmevmt_company_type',
                 'field'    => 'slug',
                 'terms'    => $company_type,
             ),
@@ -304,8 +307,9 @@ function miramedia_tedx_render_companies_showcase_block($attributes) {
 
 
     if (!$query->have_posts()) {
-        $message = empty($company_type) ? 'No companies found.' : 'No companies found for type ' . $company_type . '.';
-        return '<p>' . $message . '</p>';
+        $base_message = mmevmt_get_label('no_companies_message');
+        $message = empty($company_type) ? $base_message : rtrim($base_message, '.') . ' for type ' . $company_type . '.';
+        return '<p>' . esc_html($message) . '</p>';
     }
 
 $company_count = $query->post_count;

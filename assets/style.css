@@ -107,6 +107,59 @@
     color: #005bb5; /* Darker blue on hover */
 }
 
+/* Social links on the single Person page (below the featured image) */
+.person-social-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin: 15px 0 20px;
+}
+
+.person-social-links a {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+/* Embedded talk videos at the bottom of the single Person page */
+.person-talks {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.person-talks-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.person-talk-video {
+    width: 100%;
+    max-width: 300px;
+}
+
+.person-talk-video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.person-talk-video-frame iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.person-talk-title {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: #555555;
+}
+
 @media (max-width: 768px) {
     .people-showcase {
         grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */

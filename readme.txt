@@ -4,7 +4,7 @@ Tags: tedx, event management, gutenberg blocks, custom post types, speakers
 Requires at least: 5.9
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable Tag: 1.3
+Stable Tag: 1.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,22 @@ Yes, each showcase block has a "Display in Random Order" checkbox option.
 5. Custom post type management in WordPress admin
 
 == Changelog ==
+
+= 1.6 =
+* Added: Person page now displays social links (Instagram, Facebook, X, YouTube, Website) below the featured image
+* Added: Person page embeds YouTube videos (300px wide) for any Talks linked to that person, at the bottom of the page
+* Added: Settings > TEDx Event Manager admin page for editable text labels (Talks heading, Speaker heading, "no results" messages)
+* Added: Talks can be linked to a Mira Event and are embedded on the event page, below the content and above the ticket form (requires the Mira Event List plugin)
+* Fixed: YouTube Shorts links (youtube.com/shorts/...) are now recognised and embedded correctly
+
+= 1.5 =
+* Updated: Tested up to WordPress 6.9
+* Added: Plugin icon
+
+= 1.4 =
+* Amends based on an email 8th December 2025
+* Added ABSPATH security checks to all PHP files to prevent direct access
+* Enhanced security compliance for WordPress.org standards
 
 = 1.3 =
 * Renamed plugin to "Miramedia Event Manager for TEDx"
